@@ -1529,10 +1529,15 @@
   background: var(--ps-tint-1);
 
   legend {
-    padding: 0 8px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 14px;
+    padding: 0 0 8px;
     font-size: 13px;
     font-weight: 600;
     color: var(--muted-color, #888);
+    border-bottom: 1px solid var(--control-bg, #d0d0d0);
   }
 
   &-toggles {
