@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Switch from 'flarum/common/components/Switch';
 
 interface ShopPricingAttrs extends ComponentAttrs {
   state?: Record<string, any>;
@@ -23,16 +24,12 @@ export default class ShopPricingInputs extends Component<ShopPricingAttrs> {
       <fieldset className="PointSystemAdmin-shopPricing">
         <legend>{t('legend')}</legend>
         <div className="PointSystemAdmin-shopPricing-toggles">
-          <label className="Checkbox">
-            <input type="checkbox" checked={!!s.isRecommended} onchange={(e: Event) => set('isRecommended', (e.target as HTMLInputElement).checked)} />
-            <span className="Checkbox-display" aria-hidden="true" />
-            <span>{t('recommended')}</span>
-          </label>
-          <label className="Checkbox">
-            <input type="checkbox" checked={!!s.isHot} onchange={(e: Event) => set('isHot', (e.target as HTMLInputElement).checked)} />
-            <span className="Checkbox-display" aria-hidden="true" />
-            <span>{t('hot')}</span>
-          </label>
+          <Switch state={!!s.isRecommended} onchange={(value: boolean) => set('isRecommended', value)}>
+            {t('recommended')}
+          </Switch>
+          <Switch state={!!s.isHot} onchange={(value: boolean) => set('isHot', value)}>
+            {t('hot')}
+          </Switch>
         </div>
 
         <div className="PointSystemAdmin-shopPricing-grid">
