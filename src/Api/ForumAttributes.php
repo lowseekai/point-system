@@ -19,6 +19,7 @@ use Ramon\PointSystem\Model\ShopClaim;
 use Ramon\PointSystem\Model\TitleDecoration;
 use Ramon\PointSystem\Support\CssSanitizer;
 use Ramon\PointSystem\Support\ItemAvailability;
+use Ramon\PointSystem\Support\ItemPricing;
 use Ramon\PointSystem\Support\SubmissionColumns;
 use Ramon\PointSystem\Support\SubmissionScope;
 
@@ -107,6 +108,14 @@ class ForumAttributes
                 'availableUntil'   => optional($d->available_until)?->toIso8601String(),
                 'isListed'         => (bool) ($d->is_listed ?? true),
                 'allowedGroupIds'  => ItemAvailability::allowedGroupIds($d) ?? [],
+                'isRecommended'    => (bool) ($d->is_recommended ?? false),
+                'isHot'            => (bool) ($d->is_hot ?? false),
+                'originalPrice'     => max(0, (int) ($d->price ?? 0)),
+                'effectivePrice'    => ItemPricing::effectivePrice($d),
+                'discountPercent'   => ItemPricing::activeDiscountPercent($d),
+                'discountDays'      => (int) ($d->discount_days ?? 0),
+                'discountEndsAt'    => optional(ItemPricing::discountEndsAt($d))?->toIso8601String(),
+                'purchaseType'      => ItemPricing::purchaseType($d),
                 'status'           => (string) ($d->status ?? 'approved'),
                 'creatorId'        => $hasCreator && $d->creator_id !== null ? (int) $d->creator_id : null,
                 'creatorUsername'  => $creator ? (string) $creator->username : null,
@@ -160,7 +169,7 @@ class ForumAttributes
                             'imagePath' => $d->image_path,
                             'imageUrl' => $d->image_url,
                             'isAnimated' => (bool) $d->is_animated,
-                            'price' => (int) $d->price,
+                            'price' => ItemPricing::effectivePrice($d),
                         ], $serializeAvailability($d, $actor)))
                         ->toArray();
                 }),
@@ -183,7 +192,7 @@ class ForumAttributes
                             'description' => $d->description,
                             'preset' => $d->preset,
                             'customCss' => CssSanitizer::sanitize($d->custom_css),
-                            'price' => (int) $d->price,
+                            'price' => ItemPricing::effectivePrice($d),
                         ], $serializeAvailability($d, $actor)))
                         ->toArray();
                 }),
@@ -206,7 +215,7 @@ class ForumAttributes
                             'imagePath' => $d->image_path,
                             'imageUrl' => $d->image_url,
                             'isAnimated' => (bool) $d->is_animated,
-                            'price' => (int) $d->price,
+                            'price' => ItemPricing::effectivePrice($d),
                         ], $serializeAvailability($d, $actor)))
                         ->toArray();
                 }),
@@ -230,7 +239,7 @@ class ForumAttributes
                             'titleText' => $d->title_text,
                             'color' => $d->color,
                             'customCss' => CssSanitizer::sanitize($d->custom_css),
-                            'price' => (int) $d->price,
+                            'price' => ItemPricing::effectivePrice($d),
                         ], $serializeAvailability($d, $actor)))
                         ->toArray();
                 }),
@@ -253,7 +262,7 @@ class ForumAttributes
                             'description' => $d->description,
                             'preset' => $d->preset,
                             'customCss' => CssSanitizer::sanitize($d->custom_css),
-                            'price' => (int) $d->price,
+                            'price' => ItemPricing::effectivePrice($d),
                         ], $serializeAvailability($d, $actor)))
                         ->toArray();
                 }),

@@ -159,7 +159,7 @@ class PostHighlightDecorationResource extends AbstractDatabaseResource
             Schema\Str::make('creatorUsername')
                 ->visible($managerOrCreator)
                 ->get(fn (PostHighlightDecoration $d) => optional($d->creator)->username),
-        ], AvailabilityFields::fields());
+        ], AvailabilityFields::fields(), ShopPricingFields::fields($managerOnly));
     }
 
     #[\Override]
@@ -222,6 +222,7 @@ class PostHighlightDecorationResource extends AbstractDatabaseResource
                 $deco->status = (string) $attrs['status'];
             }
             ItemAvailability::fillFromAttrs($deco, $attrs);
+            ShopPricingFields::fillFromAttrs($deco, $attrs);
         }
     }
 

@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import AvailabilityInputs from './AvailabilityInputs';
+import ShopPricingInputs from './ShopPricingInputs';
 import { pointsLabel } from '../../common/utils/pointsLabel';
 
 const BUILTIN_PRESETS = [
@@ -49,6 +50,13 @@ export default class EditPostHighlightDecorationModal extends Modal {
         availableUntil: deco.attribute('availableUntil') || '',
         isListed: deco.attribute('isListed') !== false,
         allowedGroupIds: Array.isArray(deco.attribute('allowedGroupIds')) ? deco.attribute('allowedGroupIds') : [],
+      },
+      pricing: {
+        isRecommended: !!deco.attribute('isRecommended'),
+        isHot: !!deco.attribute('isHot'),
+        discountPercent: Number(deco.attribute('discountPercent') ?? 0),
+        discountDays: Number(deco.attribute('discountDays') ?? 0),
+        purchaseType: deco.attribute('purchaseType') || 'onetime',
       },
     };
   }
@@ -131,6 +139,7 @@ export default class EditPostHighlightDecorationModal extends Modal {
           <p className="helpText">{t('field_css_help')}</p>
         </div>
 
+        <ShopPricingInputs state={draft.pricing} onchange={(s: any) => (draft.pricing = s)} />
         <AvailabilityInputs state={draft.availability} onchange={(s: any) => (draft.availability = s)} />
 
         <div className="Form-group EditDecorationModal-actions">
@@ -152,6 +161,7 @@ export default class EditPostHighlightDecorationModal extends Modal {
     m.redraw();
     try {
       const av = draft.availability || {};
+      const pricing = draft.pricing || {};
       await deco.save({
         name: draft.name,
         description: draft.description || null,
@@ -165,6 +175,11 @@ export default class EditPostHighlightDecorationModal extends Modal {
         availableUntil: av.availableUntil || null,
         isListed: !!av.isListed,
         allowedGroupIds: Array.isArray(av.allowedGroupIds) ? av.allowedGroupIds : [],
+        isRecommended: !!pricing.isRecommended,
+        isHot: !!pricing.isHot,
+        discountPercent: Number(pricing.discountPercent) || 0,
+        discountDays: Number(pricing.discountDays) || 0,
+        purchaseType: pricing.purchaseType || 'onetime',
       });
       if (this.attrs.onSaved) this.attrs.onSaved();
       this.hide();

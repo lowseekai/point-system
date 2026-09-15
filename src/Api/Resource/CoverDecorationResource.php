@@ -150,7 +150,7 @@ class CoverDecorationResource extends AbstractDatabaseResource
             Schema\Str::make('creatorUsername')
                 ->visible($managerOrCreator)
                 ->get(fn (CoverDecoration $d) => optional($d->creator)->username),
-        ], AvailabilityFields::fields());
+        ], AvailabilityFields::fields(), ShopPricingFields::fields($managerOnly));
     }
 
     #[\Override]
@@ -215,6 +215,7 @@ class CoverDecorationResource extends AbstractDatabaseResource
                 $deco->status = (string) $attrs['status'];
             }
             ItemAvailability::fillFromAttrs($deco, $attrs);
+            ShopPricingFields::fillFromAttrs($deco, $attrs);
         }
 
         if ($isNew && empty($deco->image_path) && empty($deco->image_url)) {

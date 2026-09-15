@@ -116,6 +116,47 @@
   }
 }
 
+.PointSystemShop-card-badge.is-recommended {
+  background: color-mix(in srgb, var(--ps-success, #2d9d78) 14%, transparent);
+  color: var(--ps-success-fg, #167053);
+}
+
+.PointSystemShop-card-badge.is-hot {
+  background: color-mix(in srgb, var(--ps-warning, #d99600) 16%, transparent);
+  color: var(--ps-warning-fg, #8a5a00);
+}
+
+.PointSystemShop-card-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  del {
+    color: var(--muted-color, #888);
+    font-size: 12px;
+  }
+
+  small {
+    flex-basis: 100%;
+    color: var(--muted-color, #888);
+    font-size: 11px;
+  }
+}
+
+.PointSystemShop-card-expired {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: var(--ps-danger-fg, #a12b21);
+  font-size: 12px;
+}
+
+.PointSystemShop-card.is-expired {
+  border-color: color-mix(in srgb, var(--ps-danger, #c0392b) 35%, var(--ps-border));
+}
+
 // ─── Trade modal (Habbo-style two-panel exchange) ─────────────────────────
 //
 // Z-index + position discipline: Flarum's ModalManager renders each modal as

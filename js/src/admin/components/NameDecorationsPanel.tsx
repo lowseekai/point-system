@@ -7,6 +7,7 @@ import GrantItemModal from './GrantItemModal';
 import EditNameDecorationModal from './EditNameDecorationModal';
 import CreateNameDecorationModal from './CreateNameDecorationModal';
 import { pointsLabel } from '../../common/utils/pointsLabel';
+import ShopMetadataBadges from './ShopMetadataBadges';
 
 export default class NameDecorationsPanel extends Component {
   loading = true;
@@ -64,6 +65,7 @@ export default class NameDecorationsPanel extends Component {
         </div>
         <div className="PointSystemAdmin-decoCard-meta">
           <strong>{name}</strong>
+          <ShopMetadataBadges deco={deco} />
           <small>
             {app.translator.trans('ramon-point-system.admin.name.preset')}: {preset || '—'} · {price} {pointsLabel(app)}
           </small>

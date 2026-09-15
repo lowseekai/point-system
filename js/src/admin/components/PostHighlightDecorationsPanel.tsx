@@ -7,6 +7,7 @@ import GrantItemModal from './GrantItemModal';
 import EditPostHighlightDecorationModal from './EditPostHighlightDecorationModal';
 import CreatePostHighlightDecorationModal from './CreatePostHighlightDecorationModal';
 import { pointsLabel } from '../../common/utils/pointsLabel';
+import ShopMetadataBadges from './ShopMetadataBadges';
 
 /**
  * Admin panel for managing post-highlight decorations. Each highlight is a
@@ -74,6 +75,7 @@ export default class PostHighlightDecorationsPanel extends Component {
                   <div className="PointSystemAdmin-card-body">
                     <div>
                       <strong>{it.attribute('name')}</strong>
+                      <ShopMetadataBadges deco={it} />
                     </div>
                     <div className="helpText">{(it.attribute('price') || 0) + ' ' + pointsLabel(app)}</div>
                   </div>

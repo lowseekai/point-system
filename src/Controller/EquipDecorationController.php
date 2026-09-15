@@ -12,6 +12,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Ramon\PointSystem\FeatureGate;
 use Ramon\PointSystem\Model\ShopClaim;
 use Ramon\PointSystem\Repository\PointsRepository;
+use Ramon\PointSystem\Support\ItemPricing;
 
 /**
  * POST /api/point-system/equip
@@ -47,11 +48,11 @@ class EquipDecorationController implements RequestHandlerInterface
         $this->features->assertEnabled($type);
 
         // Must own the item
-        $owns = ShopClaim::where('user_id', $actor->id)
+        $claim = ShopClaim::where('user_id', $actor->id)
             ->where('item_type', $type)
             ->where('item_id', $id)
-            ->exists();
-        if (! $owns) {
+            ->first();
+        if (! $claim || ! ItemPricing::claimIsActive($claim)) {
             return new JsonResponse(['errors' => [['detail' => 'You do not own this decoration']]], 403);
         }
 

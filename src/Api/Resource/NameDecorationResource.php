@@ -163,7 +163,7 @@ class NameDecorationResource extends AbstractDatabaseResource
             Schema\Str::make('creatorUsername')
                 ->visible($managerOrCreator)
                 ->get(fn (NameDecoration $d) => optional($d->creator)->username),
-        ], AvailabilityFields::fields());
+        ], AvailabilityFields::fields(), ShopPricingFields::fields($managerOnly));
     }
 
     #[\Override]
@@ -232,6 +232,7 @@ class NameDecorationResource extends AbstractDatabaseResource
                 $deco->status = (string) $attrs['status'];
             }
             ItemAvailability::fillFromAttrs($deco, $attrs);
+            ShopPricingFields::fillFromAttrs($deco, $attrs);
         }
     }
 

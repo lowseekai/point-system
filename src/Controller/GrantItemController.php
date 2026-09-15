@@ -104,6 +104,8 @@ class GrantItemController implements RequestHandlerInterface
 
                 if ($existing) {
                     $existing->quantity = (int) $existing->quantity + 1;
+                    $existing->purchase_type = \Ramon\PointSystem\Support\ItemPricing::TYPE_ONETIME;
+                    $existing->expires_at = null;
                     $existing->save();
                     $claim = $existing;
                     $wasExisting = true;
@@ -117,6 +119,8 @@ class GrantItemController implements RequestHandlerInterface
                         // user didn't spend points. Audit-visible in PointTransaction
                         // history (we don't log a transaction row for free grants).
                         'price_paid' => 0,
+                        'purchase_type' => \Ramon\PointSystem\Support\ItemPricing::TYPE_ONETIME,
+                        'expires_at' => null,
                     ]);
                     $wasExisting = false;
                 }

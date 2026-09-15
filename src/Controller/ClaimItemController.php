@@ -15,6 +15,7 @@ use Ramon\PointSystem\Model\ShopClaim;
 use Ramon\PointSystem\Model\UserPoints;
 use Ramon\PointSystem\Repository\PointsRepository;
 use Ramon\PointSystem\Support\ItemAvailability;
+use Ramon\PointSystem\Support\ItemPricing;
 use Ramon\PointSystem\Support\ShopItemLocator;
 
 /**
@@ -93,18 +94,38 @@ class ClaimItemController implements RequestHandlerInterface
                 // max_claims read is consistent with the increment below.
                 // Re-check even on a stacking re-purchase: dates, groups,
                 // and the global cap can change between buys.
+                $price = ItemPricing::effectivePrice($item);
+                $purchaseType = ItemPricing::purchaseType($item);
+                $isTimed = $purchaseType !== ItemPricing::TYPE_ONETIME;
+                $now = \Carbon\Carbon::now();
+
+                if (ItemPricing::isPermanentEntitlement($existing)) {
+                    return [$existing, true];
+                }
+
                 $reason = ItemAvailability::reasonNotClaimable($item, $actor);
-                if ($reason !== null) {
+                if ($reason !== null && ! ($reason === 'sold_out' && $existing && $isTimed)) {
                     throw new \DomainException($reason);
                 }
 
-                // Charge the price for THIS copy. Claims are stackable, so a
-                // re-purchase is a fresh transaction (not idempotent), and
-                // each copy increments `claim_count` toward the global cap.
-                $this->points->deduct($actor, (int) $item->price, 'shop.claim', $type, $id);
+                // Timed products renew one entitlement instead of stacking
+                // copies. Permanent products retain the existing stackable
+                // behavior used by the trade subsystem.
+                $this->points->deduct($actor, $price, 'shop.claim', $type, $id);
 
+                $incrementClaimCount = true;
                 if ($existing) {
-                    $existing->quantity = (int) $existing->quantity + 1;
+                    if ($isTimed) {
+                        $existing->quantity = 1;
+                        $existing->purchase_type = $purchaseType;
+                        $existing->expires_at = ItemPricing::nextExpiry($item, $existing, $now);
+                        $incrementClaimCount = false;
+                    } else {
+                        $existing->quantity = (int) $existing->quantity + 1;
+                        $existing->purchase_type = ItemPricing::TYPE_ONETIME;
+                        $existing->expires_at = null;
+                    }
+                    $existing->price_paid = $price;
                     $existing->save();
                     $claim = $existing;
                     $wasExisting = true;
@@ -114,15 +135,19 @@ class ClaimItemController implements RequestHandlerInterface
                         'item_type' => $type,
                         'item_id' => $id,
                         'quantity' => 1,
-                        'price_paid' => (int) $item->price,
+                        'price_paid' => $price,
+                        'purchase_type' => $purchaseType,
+                        'expires_at' => $isTimed ? ItemPricing::nextExpiry($item, null, $now) : null,
                     ]);
                     $wasExisting = false;
                 }
 
                 // Increment claim_count atomically. We've already held the row
                 // lock above so this is a guaranteed-in-order update.
-                $item->claim_count = (int) $item->claim_count + 1;
-                $item->save();
+                if ($incrementClaimCount) {
+                    $item->claim_count = (int) $item->claim_count + 1;
+                    $item->save();
+                }
 
                 return [$claim, $wasExisting];
             });

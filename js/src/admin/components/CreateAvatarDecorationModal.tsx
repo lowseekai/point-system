@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import AvailabilityInputs from './AvailabilityInputs';
+import ShopPricingInputs from './ShopPricingInputs';
 import { pointsLabel } from '../../common/utils/pointsLabel';
 
 const SOURCE_FILE = 'file';
@@ -38,6 +39,13 @@ export default class CreateAvatarDecorationModal extends Modal {
       availableUntil: '',
       isListed: true,
       allowedGroupIds: [],
+    },
+    pricing: {
+      isRecommended: false,
+      isHot: false,
+      discountPercent: 0,
+      discountDays: 0,
+      purchaseType: 'onetime',
     },
   };
   uploading = false;
@@ -135,6 +143,7 @@ export default class CreateAvatarDecorationModal extends Modal {
           )}
         </div>
 
+        <ShopPricingInputs state={draft.pricing} onchange={(s: any) => (draft.pricing = s)} />
         <AvailabilityInputs state={draft.availability} onchange={(s: any) => (draft.availability = s)} />
 
         <div className="Form-group EditDecorationModal-actions">
@@ -162,6 +171,7 @@ export default class CreateAvatarDecorationModal extends Modal {
 
     try {
       const av = draft.availability || {};
+      const pricing = draft.pricing || {};
       const apiUrl = (app.forum.attribute('apiUrl') || '/api').replace(/\/+$/, '');
 
       if (this.source === SOURCE_FILE) {
@@ -194,6 +204,11 @@ export default class CreateAvatarDecorationModal extends Modal {
                   availableUntil: av.availableUntil || null,
                   isListed: !!av.isListed,
                   allowedGroupIds: Array.isArray(av.allowedGroupIds) ? av.allowedGroupIds : [],
+                  isRecommended: !!pricing.isRecommended,
+                  isHot: !!pricing.isHot,
+                  discountPercent: Number(pricing.discountPercent) || 0,
+                  discountDays: Number(pricing.discountDays) || 0,
+                  purchaseType: pricing.purchaseType || 'onetime',
                 },
               },
             },
@@ -211,6 +226,11 @@ export default class CreateAvatarDecorationModal extends Modal {
           availableUntil: av.availableUntil || null,
           isListed: !!av.isListed,
           allowedGroupIds: Array.isArray(av.allowedGroupIds) ? av.allowedGroupIds : [],
+          isRecommended: !!pricing.isRecommended,
+          isHot: !!pricing.isHot,
+          discountPercent: Number(pricing.discountPercent) || 0,
+          discountDays: Number(pricing.discountDays) || 0,
+          purchaseType: pricing.purchaseType || 'onetime',
         });
       }
 

@@ -1219,6 +1219,44 @@
   color: var(--muted-color, #666);
 }
 
+.PointSystemAdmin-shopMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 5px 0;
+
+  .PointSystemAdmin-tag {
+    margin-left: 0;
+    text-transform: none;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+
+    del {
+      margin-left: 4px;
+      color: var(--muted-color, #888);
+    }
+
+    i {
+      margin-right: 3px;
+    }
+
+    &--recommended {
+      background: color-mix(in srgb, var(--ps-success) 14%, transparent);
+      color: var(--ps-success-fg);
+    }
+
+    &--hot {
+      background: color-mix(in srgb, var(--ps-warning) 16%, transparent);
+      color: var(--ps-warning-fg);
+    }
+
+    &--discount {
+      background: color-mix(in srgb, var(--ps-danger) 12%, transparent);
+      color: var(--ps-danger-fg);
+    }
+  }
+}
+
 .PointSystemAdmin-pill {
   display: inline-block;
   padding: 3px 10px;
@@ -1481,4 +1519,53 @@
 // ─── Button spacing in manual award ──────────────────────────────────────────
 .PointSystemAdmin-section .Form-group + .Form-group {
   margin-top: 12px;
+}
+
+.PointSystemAdmin-shopPricing {
+  margin: 16px 0;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--control-bg, #d0d0d0);
+  border-radius: 8px;
+  background: var(--ps-tint-1);
+
+  legend {
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted-color, #888);
+  }
+
+  &-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    margin-bottom: 14px;
+
+    .Checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
+  &-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 18px;
+
+    @media (max-width: 720px) {
+      grid-template-columns: 1fr;
+    }
+
+    .Form-group {
+      margin: 0;
+    }
+  }
+
+  > .helpText {
+    margin: 12px 0 0;
+    line-height: 1.45;
+  }
 }

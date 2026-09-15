@@ -7,6 +7,7 @@ import GrantItemModal from './GrantItemModal';
 import EditCoverDecorationModal from './EditCoverDecorationModal';
 import CreateCoverDecorationModal from './CreateCoverDecorationModal';
 import { pointsLabel } from '../../common/utils/pointsLabel';
+import ShopMetadataBadges from './ShopMetadataBadges';
 
 /**
  * Admin panel for shop-sold profile covers. Mirrors AvatarDecorationsPanel.
@@ -72,6 +73,7 @@ export default class CoverDecorationsPanel extends Component {
         <div className="PointSystemAdmin-coverCard-preview">{url && <img src={url} alt={name} />}</div>
         <div className="PointSystemAdmin-coverCard-meta">
           <strong>{name}</strong>
+          <ShopMetadataBadges deco={deco} />
           <small>
             {price} {pointsLabel(app)}
           </small>

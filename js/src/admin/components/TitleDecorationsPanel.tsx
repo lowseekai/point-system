@@ -6,6 +6,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import GrantItemModal from './GrantItemModal';
 import CreateTitleDecorationModal from './CreateTitleDecorationModal';
 import { pointsLabel } from '../../common/utils/pointsLabel';
+import ShopMetadataBadges from './ShopMetadataBadges';
 
 /**
  * Admin panel for managing Title decorations. Each title is a short text
@@ -61,6 +62,7 @@ export default class TitleDecorationsPanel extends Component {
                   <div className="PointSystemAdmin-card-body">
                     <div>
                       <strong>{it.attribute('name')}</strong>
+                      <ShopMetadataBadges deco={it} />
                     </div>
                     <div className="helpText">{(it.attribute('price') || 0) + ' ' + pointsLabel(app)}</div>
                   </div>

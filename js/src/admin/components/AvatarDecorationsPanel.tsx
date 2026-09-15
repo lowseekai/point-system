@@ -7,6 +7,7 @@ import GrantItemModal from './GrantItemModal';
 import EditAvatarDecorationModal from './EditAvatarDecorationModal';
 import CreateAvatarDecorationModal from './CreateAvatarDecorationModal';
 import { pointsLabel } from '../../common/utils/pointsLabel';
+import ShopMetadataBadges from './ShopMetadataBadges';
 
 export default class AvatarDecorationsPanel extends Component {
   loading = true;
@@ -66,6 +67,7 @@ export default class AvatarDecorationsPanel extends Component {
         <div className="PointSystemAdmin-decoCard-preview">{url && <img src={url} alt={name} />}</div>
         <div className="PointSystemAdmin-decoCard-meta">
           <strong>{name}</strong>
+          <ShopMetadataBadges deco={deco} />
           <small>
             {price} {pointsLabel(app)}
           </small>

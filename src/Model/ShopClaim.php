@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $quantity
  * @property int $price_paid
  * @property \Carbon\Carbon $claimed_at
+ * @property string $purchase_type
+ * @property \Carbon\Carbon|null $expires_at
  */
 class ShopClaim extends AbstractModel
 {
@@ -34,9 +36,24 @@ class ShopClaim extends AbstractModel
         'quantity' => 'integer',
         'price_paid' => 'integer',
         'claimed_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
-    protected $fillable = ['user_id', 'item_type', 'item_id', 'quantity', 'price_paid', 'claimed_at'];
+    protected $fillable = [
+        'user_id',
+        'item_type',
+        'item_id',
+        'quantity',
+        'price_paid',
+        'claimed_at',
+        'purchase_type',
+        'expires_at',
+    ];
+
+    public function isActive(): bool
+    {
+        return \Ramon\PointSystem\Support\ItemPricing::claimIsActive($this);
+    }
 
     public function user(): BelongsTo
     {
@@ -62,6 +79,8 @@ class ShopClaim extends AbstractModel
                 'quantity' => (int) $this->quantity,
                 'pricePaid' => $this->price_paid,
                 'claimedAt' => optional($this->claimed_at)->toIso8601String(),
+                'purchaseType' => $this->purchase_type ?: 'onetime',
+                'expiresAt' => optional($this->expires_at)->toIso8601String(),
             ],
         ];
     }

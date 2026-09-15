@@ -41,6 +41,13 @@ interface ShopItem {
   name: string;
   description: string | null;
   price: number;
+  originalPrice?: number;
+  effectivePrice?: number;
+  discountPercent?: number;
+  discountEndsAt?: string | null;
+  purchaseType?: 'onetime' | 'monthly' | 'yearly';
+  isRecommended?: boolean;
+  isHot?: boolean;
   // avatar / cover specific
   imagePath?: string;
   imageUrl?: string;
@@ -421,16 +428,24 @@ export default class ShopPage extends Page {
   }
 
   private userOwnsId(type: string, id: number | string): boolean {
+    return !!this.userClaim(type, id);
+  }
+
+  private userClaim(type: string, id: number | string): any | null {
     const list = (app.session.user?.attribute('ownedDecorationIds') as any[]) || [];
-    return list.some((o) => o.type === type && Number(o.id) === Number(id));
+    return list.find((o) => o.type === type && Number(o.id) === Number(id)) || null;
   }
 
   renderCard(item: ShopItem) {
     const user = app.session.user;
     const balance = Number(user?.attribute('pointBalance') ?? 0);
-    const owned = this.userOwns(item);
+    const claim = this.userClaim(item.type, item.id);
+    const owned = !!claim && claim.isActive !== false;
+    const expired = !!claim && claim.isActive === false;
     const equipped = this.userEquipped(item);
-    const canAfford = balance >= item.price;
+    const currentPrice = Number(item.effectivePrice ?? item.price);
+    const originalPrice = Number(item.originalPrice ?? item.price);
+    const canAfford = balance >= currentPrice;
     const claimKey = `${item.type}:${item.id}`;
     const isClaiming = this.claiming.has(claimKey);
     const badges = this.availabilityBadges(item);
@@ -441,6 +456,7 @@ export default class ShopPage extends Page {
       item.isAnimated ? 'is-animated' : '',
       owned ? 'is-owned' : '',
       equipped ? 'is-equipped' : '',
+      expired ? 'is-expired' : '',
     ]
       .filter(Boolean)
       .join(' ');
@@ -452,7 +468,21 @@ export default class ShopPage extends Page {
             <i className="fas fa-check-circle" /> {app.translator.trans('ramon-point-system.forum.shop.equipped_label')}
           </div>
         )}
-        {badges.length > 0 && <div className="PointSystemShop-card-badges">{badges}</div>}
+        {(badges.length > 0 || item.isRecommended || item.isHot) && (
+          <div className="PointSystemShop-card-badges">
+            {item.isRecommended && (
+              <span className="PointSystemShop-card-badge is-recommended">
+                <i className="fas fa-star" /> {app.translator.trans('ramon-point-system.forum.shop.badge_recommended')}
+              </span>
+            )}
+            {item.isHot && (
+              <span className="PointSystemShop-card-badge is-hot">
+                <i className="fas fa-fire" /> {app.translator.trans('ramon-point-system.forum.shop.badge_hot')}
+              </span>
+            )}
+            {badges}
+          </div>
+        )}
 
         <div className="PointSystemShop-card-preview">
           {item.type === 'avatar_decoration'
@@ -495,8 +525,17 @@ export default class ShopPage extends Page {
           )}
           <div className="PointSystemShop-card-price">
             <i className={(app.forum.attribute('pointSystem.currency_icon') as string) || 'fas fa-coins'} />
-            <strong>{item.price.toLocaleString()}</strong>
+            {currentPrice < originalPrice && <del>{originalPrice.toLocaleString()}</del>}
+            <strong>{currentPrice.toLocaleString()}</strong>
+            {item.purchaseType && item.purchaseType !== 'onetime' && (
+              <small>{app.translator.trans(`ramon-point-system.forum.shop.purchase_${item.purchaseType}`)}</small>
+            )}
           </div>
+          {expired && (
+            <div className="PointSystemShop-card-expired">
+              <i className="fas fa-clock" /> {app.translator.trans('ramon-point-system.forum.shop.expired_ownership')}
+            </div>
+          )}
 
           {!user && this.guestLoginButton()}
 
@@ -515,7 +554,7 @@ export default class ShopPage extends Page {
           {user && !owned && (
             <Button className="Button Button--primary" disabled={!canAfford} loading={isClaiming} onclick={() => this.confirmClaim(item)}>
               {canAfford
-                ? app.translator.trans('ramon-point-system.forum.shop.claim')
+                ? app.translator.trans(expired ? 'ramon-point-system.forum.shop.renew' : 'ramon-point-system.forum.shop.claim')
                 : app.translator.trans('ramon-point-system.forum.shop.not_enough')}
             </Button>
           )}
@@ -673,7 +712,7 @@ export default class ShopPage extends Page {
 
   userOwns(item: ShopItem): boolean {
     const list = (app.session.user?.attribute('ownedDecorationIds') as any[]) || [];
-    return list.some((o) => o.type === item.type && Number(o.id) === Number(item.id));
+    return list.some((o) => o.type === item.type && Number(o.id) === Number(item.id) && o.isActive !== false);
   }
 
   // Build "limited stock" + "time-limited" badges for a shop card. Items the
@@ -737,15 +776,22 @@ export default class ShopPage extends Page {
         ? this.previewAvatar(item)
         : item.type === 'cover_decoration'
           ? this.previewCover(item)
-          : this.previewName(item);
+          : item.type === 'title_decoration'
+            ? this.previewTitle(item)
+            : item.type === 'post_highlight_decoration'
+              ? this.previewPostHl(item)
+              : this.previewName(item);
+
+    const claim = this.userClaim(item.type, item.id);
+    const isRenewal = claim?.isActive === false;
 
     app.modal.show(ConfirmPurchaseModal, {
       title: app.translator.trans('ramon-point-system.forum.confirm.title'),
       itemName: item.name,
-      itemPrice: item.price,
+      itemPrice: Number(item.effectivePrice ?? item.price),
       currentBalance: balance,
       preview,
-      confirmLabel: app.translator.trans('ramon-point-system.forum.shop.claim'),
+      confirmLabel: app.translator.trans(isRenewal ? 'ramon-point-system.forum.shop.renew' : 'ramon-point-system.forum.shop.claim'),
       onConfirm: () => this.claim(item),
     });
   }
@@ -782,18 +828,28 @@ export default class ShopPage extends Page {
 
     try {
       const apiUrl = String(app.forum.attribute('apiUrl') || '/api').replace(/\/+$/, '');
-      await app.request({
+      const result: any = await app.request({
         method: 'POST',
         url: `${apiUrl}/point-system/claim/${item.id}`,
         body: { type: item.type },
       });
 
       // Optimistically update local state
-      const owned = (user.attribute('ownedDecorationIds') as any[]) || [];
-      owned.push({ type: item.type, id: item.id });
+      const owned = ((user.attribute('ownedDecorationIds') as any[]) || []).filter(
+        (entry: any) => entry.type !== item.type || Number(entry.id) !== Number(item.id)
+      );
+      const responseClaim = result?.data?.attributes || {};
+      owned.unshift({
+        type: item.type,
+        id: item.id,
+        quantity: Number(responseClaim.quantity ?? 1),
+        purchaseType: responseClaim.purchaseType || item.purchaseType || 'onetime',
+        expiresAt: responseClaim.expiresAt ?? null,
+        isActive: true,
+      });
       user.pushAttributes({
         ownedDecorationIds: owned,
-        pointBalance: Math.max(0, Number(user.attribute('pointBalance') ?? 0) - item.price),
+        pointBalance: Math.max(0, Number(user.attribute('pointBalance') ?? 0) - Number(item.effectivePrice ?? item.price)),
       });
 
       app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.forum.shop.claimed', { name: item.name }));

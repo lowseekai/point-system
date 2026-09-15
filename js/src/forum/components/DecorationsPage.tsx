@@ -76,7 +76,12 @@ export default class DecorationsPage extends Page {
         .filter((d) => owned.some((o: any) => o.type === type && Number(o.id) === Number(d.id)))
         .map((d) => {
           const o = owned.find((o: any) => o.type === type && Number(o.id) === Number(d.id));
-          return { ...d, _quantity: Math.max(1, Number(o?.quantity ?? 1)) };
+          return {
+            ...d,
+            _quantity: Math.max(1, Number(o?.quantity ?? 1)),
+            _isActive: o?.isActive !== false,
+            _expiresAt: o?.expiresAt ?? null,
+          };
         });
 
     const ownedAvatars = ownedOf('avatar_decoration', avatars);
@@ -167,10 +172,11 @@ export default class DecorationsPage extends Page {
                 <h3>{app.translator.trans('ramon-point-system.forum.my_decorations.avatar')}</h3>
                 <div className="PointSystemDecorations-grid">
                   {ownedAvatars.map((d) => (
-                    <div className={`PointSystemDecorations-item ${equippedAvatarId === d.id ? 'is-equipped' : ''}`} key={`all-av-${d.id}`}>
+                    <div className={`PointSystemDecorations-item ${equippedAvatarId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`all-av-${d.id}`}>
                       {this.avatarPreview(d)}
                       <div className="PointSystemDecorations-item-name">
                         {d.name}
+                        {this.renderOwnershipState(d)}
                         {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                       </div>
                       <div className="PointSystemDecorations-item-actions">
@@ -185,6 +191,7 @@ export default class DecorationsPage extends Page {
                         ) : (
                           <Button
                             className="Button Button--primary"
+                            disabled={d._isActive === false}
                             loading={this.busy.has(this.busyKey('avatar_decoration', d.id))}
                             onclick={() =>
                               this.equip('avatar_decoration', d.id, {
@@ -193,7 +200,11 @@ export default class DecorationsPage extends Page {
                               })
                             }
                           >
-                            {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                            {app.translator.trans(
+                              d._isActive === false
+                                ? 'ramon-point-system.forum.my_decorations.expired'
+                                : 'ramon-point-system.forum.my_decorations.equip'
+                            )}
                           </Button>
                         )}
                       </div>
@@ -210,10 +221,11 @@ export default class DecorationsPage extends Page {
                   {ownedNames.map((d) => {
                     const slug = String(d.slug || '').replace(/[^a-zA-Z0-9_-]/g, '');
                     return (
-                      <div className={`PointSystemDecorations-item ${equippedNameId === d.id ? 'is-equipped' : ''}`} key={`all-na-${d.id}`}>
+                      <div className={`PointSystemDecorations-item ${equippedNameId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`all-na-${d.id}`}>
                         <span className={`ps-name-preview ps-name-${slug}`}>{app.session.user.username()}</span>
                         <div className="PointSystemDecorations-item-name">
                           {d.name}
+                          {this.renderOwnershipState(d)}
                           {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                         </div>
                         <div className="PointSystemDecorations-item-actions">
@@ -228,12 +240,17 @@ export default class DecorationsPage extends Page {
                           ) : (
                             <Button
                               className="Button Button--primary"
+                              disabled={d._isActive === false}
                               loading={this.busy.has(this.busyKey('name_decoration', d.id))}
                               onclick={() =>
                                 this.equip('name_decoration', d.id, { equippedNameDecorationId: d.id, equippedNameDecorationSlug: d.slug })
                               }
                             >
-                              {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                              {app.translator.trans(
+                                d._isActive === false
+                                  ? 'ramon-point-system.forum.my_decorations.expired'
+                                  : 'ramon-point-system.forum.my_decorations.equip'
+                              )}
                             </Button>
                           )}
                         </div>
@@ -249,12 +266,13 @@ export default class DecorationsPage extends Page {
                 <h3>{app.translator.trans('ramon-point-system.forum.my_decorations.cover')}</h3>
                 <div className="PointSystemDecorations-coverGrid">
                   {ownedCovers.map((d) => (
-                    <div className={`PointSystemDecorations-coverItem ${equippedCoverId === d.id ? 'is-equipped' : ''}`} key={`all-co-${d.id}`}>
+                    <div className={`PointSystemDecorations-coverItem ${equippedCoverId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`all-co-${d.id}`}>
                       <div className="PointSystemDecorations-coverItem-preview">
                         <img src={this.resolveAsset(d.imagePath || d.imageUrl)} alt={d.name} />
                       </div>
                       <div className="PointSystemDecorations-item-name">
                         {d.name}
+                        {this.renderOwnershipState(d)}
                         {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                       </div>
                       <div className="PointSystemDecorations-item-actions">
@@ -269,6 +287,7 @@ export default class DecorationsPage extends Page {
                         ) : (
                           <Button
                             className="Button Button--primary"
+                            disabled={d._isActive === false}
                             loading={this.busy.has(this.busyKey('cover_decoration', d.id))}
                             onclick={() =>
                               this.equip('cover_decoration', d.id, {
@@ -277,7 +296,11 @@ export default class DecorationsPage extends Page {
                               })
                             }
                           >
-                            {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                            {app.translator.trans(
+                              d._isActive === false
+                                ? 'ramon-point-system.forum.my_decorations.expired'
+                                : 'ramon-point-system.forum.my_decorations.equip'
+                            )}
                           </Button>
                         )}
                       </div>
@@ -296,12 +319,13 @@ export default class DecorationsPage extends Page {
                     const isEq = equippedTitleId === d.id;
                     const styleVar = d.color ? `--ps-title-color:${String(d.color).replace(/[<>"';]/g, '')};` : '';
                     return (
-                      <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''}`} key={`all-ti-${d.id}`}>
+                      <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`all-ti-${d.id}`}>
                         <span className={`ps-title-preview ps-title-${slug}`} style={styleVar}>
                           {d.titleText}
                         </span>
                         <div className="PointSystemDecorations-item-name">
                           {d.name}
+                          {this.renderOwnershipState(d)}
                           {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                         </div>
                         <div className="PointSystemDecorations-item-actions">
@@ -314,19 +338,24 @@ export default class DecorationsPage extends Page {
                               {app.translator.trans('ramon-point-system.forum.my_decorations.unequip')}
                             </Button>
                           ) : (
-                            <Button
-                              className="Button Button--primary"
-                              loading={this.busy.has(this.busyKey('title_decoration', d.id))}
-                              onclick={() =>
-                                this.equip('title_decoration', d.id, {
+                              <Button
+                                className="Button Button--primary"
+                                disabled={d._isActive === false}
+                                loading={this.busy.has(this.busyKey('title_decoration', d.id))}
+                                onclick={() =>
+                                  this.equip('title_decoration', d.id, {
                                   equippedTitleDecorationId: d.id,
                                   equippedTitleDecorationSlug: d.slug,
                                   equippedTitleDecorationText: d.titleText,
                                 })
-                              }
-                            >
-                              {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
-                            </Button>
+                                }
+                              >
+                                {app.translator.trans(
+                                  d._isActive === false
+                                    ? 'ramon-point-system.forum.my_decorations.expired'
+                                    : 'ramon-point-system.forum.my_decorations.equip'
+                                )}
+                              </Button>
                           )}
                         </div>
                       </div>
@@ -344,7 +373,7 @@ export default class DecorationsPage extends Page {
                     const slug = String(d.slug || '').replace(/[^a-zA-Z0-9_-]/g, '');
                     const isEq = equippedPostHlId === d.id;
                     return (
-                      <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''}`} key={`all-ph-${d.id}`}>
+                      <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`all-ph-${d.id}`}>
                         <div className={`ps-posthl-preview ps-posthl-${slug}`}>
                           <div className="ps-posthl-preview-avatar" />
                           <div className="ps-posthl-preview-body">
@@ -354,6 +383,7 @@ export default class DecorationsPage extends Page {
                         </div>
                         <div className="PointSystemDecorations-item-name">
                           {d.name}
+                          {this.renderOwnershipState(d)}
                           {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                         </div>
                         <div className="PointSystemDecorations-item-actions">
@@ -366,18 +396,23 @@ export default class DecorationsPage extends Page {
                               {app.translator.trans('ramon-point-system.forum.my_decorations.unequip')}
                             </Button>
                           ) : (
-                            <Button
-                              className="Button Button--primary"
-                              loading={this.busy.has(this.busyKey('post_highlight_decoration', d.id))}
-                              onclick={() =>
-                                this.equip('post_highlight_decoration', d.id, {
+                              <Button
+                                className="Button Button--primary"
+                                disabled={d._isActive === false}
+                                loading={this.busy.has(this.busyKey('post_highlight_decoration', d.id))}
+                                onclick={() =>
+                                  this.equip('post_highlight_decoration', d.id, {
                                   equippedPostHighlightDecorationId: d.id,
                                   equippedPostHighlightDecorationSlug: d.slug,
                                 })
-                              }
-                            >
-                              {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
-                            </Button>
+                                }
+                              >
+                                {app.translator.trans(
+                                  d._isActive === false
+                                    ? 'ramon-point-system.forum.my_decorations.expired'
+                                    : 'ramon-point-system.forum.my_decorations.equip'
+                                )}
+                              </Button>
                           )}
                         </div>
                       </div>
@@ -397,10 +432,11 @@ export default class DecorationsPage extends Page {
             )}
             <div className="PointSystemDecorations-grid">
               {ownedAvatars.map((d) => (
-                <div className={`PointSystemDecorations-item ${equippedAvatarId === d.id ? 'is-equipped' : ''}`} key={`av-${d.id}`}>
+                <div className={`PointSystemDecorations-item ${equippedAvatarId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`av-${d.id}`}>
                   {this.avatarPreview(d)}
                   <div className="PointSystemDecorations-item-name">
                     {d.name}
+                    {this.renderOwnershipState(d)}
                     {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                   </div>
                   <div className="PointSystemDecorations-item-actions">
@@ -415,6 +451,7 @@ export default class DecorationsPage extends Page {
                     ) : (
                       <Button
                         className="Button Button--primary"
+                        disabled={d._isActive === false}
                         loading={this.busy.has(this.busyKey('avatar_decoration', d.id))}
                         onclick={() =>
                           this.equip('avatar_decoration', d.id, {
@@ -423,7 +460,11 @@ export default class DecorationsPage extends Page {
                           })
                         }
                       >
-                        {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                        {app.translator.trans(
+                          d._isActive === false
+                            ? 'ramon-point-system.forum.my_decorations.expired'
+                            : 'ramon-point-system.forum.my_decorations.equip'
+                        )}
                       </Button>
                     )}
                   </div>
@@ -443,10 +484,11 @@ export default class DecorationsPage extends Page {
               {ownedNames.map((d) => {
                 const slug = String(d.slug || '').replace(/[^a-zA-Z0-9_-]/g, '');
                 return (
-                  <div className={`PointSystemDecorations-item ${equippedNameId === d.id ? 'is-equipped' : ''}`} key={`na-${d.id}`}>
+                  <div className={`PointSystemDecorations-item ${equippedNameId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`na-${d.id}`}>
                     <span className={`ps-name-preview ps-name-${slug}`}>{app.session.user.username()}</span>
                     <div className="PointSystemDecorations-item-name">
                       {d.name}
+                      {this.renderOwnershipState(d)}
                       {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                     </div>
                     <div className="PointSystemDecorations-item-actions">
@@ -459,13 +501,18 @@ export default class DecorationsPage extends Page {
                           {app.translator.trans('ramon-point-system.forum.my_decorations.unequip')}
                         </Button>
                       ) : (
-                        <Button
-                          className="Button Button--primary"
-                          loading={this.busy.has(this.busyKey('name_decoration', d.id))}
-                          onclick={() => this.equip('name_decoration', d.id, { equippedNameDecorationId: d.id, equippedNameDecorationSlug: d.slug })}
-                        >
-                          {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
-                        </Button>
+                      <Button
+                        className="Button Button--primary"
+                        disabled={d._isActive === false}
+                        loading={this.busy.has(this.busyKey('name_decoration', d.id))}
+                        onclick={() => this.equip('name_decoration', d.id, { equippedNameDecorationId: d.id, equippedNameDecorationSlug: d.slug })}
+                      >
+                        {app.translator.trans(
+                          d._isActive === false
+                            ? 'ramon-point-system.forum.my_decorations.expired'
+                            : 'ramon-point-system.forum.my_decorations.equip'
+                        )}
+                      </Button>
                       )}
                     </div>
                   </div>
@@ -487,12 +534,13 @@ export default class DecorationsPage extends Page {
                 const isEq = equippedTitleId === d.id;
                 const styleVar = d.color ? `--ps-title-color:${String(d.color).replace(/[<>"';]/g, '')};` : '';
                 return (
-                  <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''}`} key={`ti-${d.id}`}>
+                  <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`ti-${d.id}`}>
                     <span className={`ps-title-preview ps-title-${slug}`} style={styleVar}>
                       {d.titleText}
                     </span>
                     <div className="PointSystemDecorations-item-name">
                       {d.name}
+                      {this.renderOwnershipState(d)}
                       {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                     </div>
                     <div className="PointSystemDecorations-item-actions">
@@ -507,6 +555,7 @@ export default class DecorationsPage extends Page {
                       ) : (
                         <Button
                           className="Button Button--primary"
+                          disabled={d._isActive === false}
                           loading={this.busy.has(this.busyKey('title_decoration', d.id))}
                           onclick={() =>
                             this.equip('title_decoration', d.id, {
@@ -516,7 +565,11 @@ export default class DecorationsPage extends Page {
                             })
                           }
                         >
-                          {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                          {app.translator.trans(
+                            d._isActive === false
+                              ? 'ramon-point-system.forum.my_decorations.expired'
+                              : 'ramon-point-system.forum.my_decorations.equip'
+                          )}
                         </Button>
                       )}
                     </div>
@@ -538,7 +591,7 @@ export default class DecorationsPage extends Page {
                 const slug = String(d.slug || '').replace(/[^a-zA-Z0-9_-]/g, '');
                 const isEq = equippedPostHlId === d.id;
                 return (
-                  <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''}`} key={`ph-${d.id}`}>
+                  <div className={`PointSystemDecorations-item ${isEq ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`ph-${d.id}`}>
                     <div className={`ps-posthl-preview ps-posthl-${slug}`}>
                       <div className="ps-posthl-preview-avatar" />
                       <div className="ps-posthl-preview-body">
@@ -548,6 +601,7 @@ export default class DecorationsPage extends Page {
                     </div>
                     <div className="PointSystemDecorations-item-name">
                       {d.name}
+                      {this.renderOwnershipState(d)}
                       {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                     </div>
                     <div className="PointSystemDecorations-item-actions">
@@ -562,6 +616,7 @@ export default class DecorationsPage extends Page {
                       ) : (
                         <Button
                           className="Button Button--primary"
+                          disabled={d._isActive === false}
                           loading={this.busy.has(this.busyKey('post_highlight_decoration', d.id))}
                           onclick={() =>
                             this.equip('post_highlight_decoration', d.id, {
@@ -570,7 +625,11 @@ export default class DecorationsPage extends Page {
                             })
                           }
                         >
-                          {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                          {app.translator.trans(
+                            d._isActive === false
+                              ? 'ramon-point-system.forum.my_decorations.expired'
+                              : 'ramon-point-system.forum.my_decorations.equip'
+                          )}
                         </Button>
                       )}
                     </div>
@@ -589,12 +648,13 @@ export default class DecorationsPage extends Page {
             )}
             <div className="PointSystemDecorations-coverGrid">
               {ownedCovers.map((d) => (
-                <div className={`PointSystemDecorations-coverItem ${equippedCoverId === d.id ? 'is-equipped' : ''}`} key={`co-${d.id}`}>
+                <div className={`PointSystemDecorations-coverItem ${equippedCoverId === d.id ? 'is-equipped' : ''} ${d._isActive === false ? 'is-expired' : ''}`} key={`co-${d.id}`}>
                   <div className="PointSystemDecorations-coverItem-preview">
                     <img src={this.resolveAsset(d.imageUrl || d.imagePath)} alt={d.name} />
                   </div>
                   <div className="PointSystemDecorations-item-name">
                     {d.name}
+                    {this.renderOwnershipState(d)}
                     {d._quantity > 1 && <span className="PointSystemDecorations-item-quantity">×{d._quantity}</span>}
                   </div>
                   <div className="PointSystemDecorations-item-actions">
@@ -609,6 +669,7 @@ export default class DecorationsPage extends Page {
                     ) : (
                       <Button
                         className="Button Button--primary"
+                        disabled={d._isActive === false}
                         loading={this.busy.has(this.busyKey('cover_decoration', d.id))}
                         onclick={() =>
                           this.equip('cover_decoration', d.id, {
@@ -617,7 +678,11 @@ export default class DecorationsPage extends Page {
                           })
                         }
                       >
-                        {app.translator.trans('ramon-point-system.forum.my_decorations.equip')}
+                        {app.translator.trans(
+                          d._isActive === false
+                            ? 'ramon-point-system.forum.my_decorations.expired'
+                            : 'ramon-point-system.forum.my_decorations.equip'
+                        )}
                       </Button>
                     )}
                   </div>
@@ -655,7 +720,25 @@ export default class DecorationsPage extends Page {
     ];
   }
 
+  renderOwnershipState(item: any) {
+    if (item._isActive !== false) return null;
+
+    return (
+      <span className="PointSystemDecorations-item-expired">
+        <i className="fas fa-clock" /> {app.translator.trans('ramon-point-system.forum.my_decorations.expired')}
+      </span>
+    );
+  }
+
   async equip(type: string, id: number, optimistic: Record<string, any>) {
+    const claim = ((app.session.user?.attribute('ownedDecorationIds') as any[]) || []).find(
+      (entry: any) => entry.type === type && Number(entry.id) === Number(id)
+    );
+    if (claim?.isActive === false) {
+      app.alerts.show({ type: 'error' }, app.translator.trans('ramon-point-system.forum.my_decorations.expired'));
+      return;
+    }
+
     const key = this.busyKey(type, id);
     this.busy.add(key);
     m.redraw();

@@ -15,6 +15,7 @@ use Ramon\PointSystem\Model\ShopClaim;
 use Ramon\PointSystem\Model\Trade;
 use Ramon\PointSystem\Model\TradeItem;
 use Ramon\PointSystem\Model\UserPoints;
+use Ramon\PointSystem\Support\ItemPricing;
 
 /**
  * Atomic trade executor.
@@ -214,6 +215,9 @@ class TradeRepository
                 ->lockForUpdate()
                 ->first();
             if (! $donor || (int) $donor->quantity < 1) {
+                throw new ValidationException(['trade' => 'item_unavailable']);
+            }
+            if (! ItemPricing::claimIsActive($donor)) {
                 throw new ValidationException(['trade' => 'item_unavailable']);
             }
             $donorClaims[(int) $ti->id] = $donor;

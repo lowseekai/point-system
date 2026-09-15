@@ -7,6 +7,7 @@ namespace Ramon\PointSystem\Api;
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Collection;
 use Ramon\PointSystem\Model\AvatarDecoration;
 use Ramon\PointSystem\Model\CoverDecoration;
 use Ramon\PointSystem\Model\NameDecoration;
@@ -14,6 +15,7 @@ use Ramon\PointSystem\Model\PostHighlightDecoration;
 use Ramon\PointSystem\Model\ShopClaim;
 use Ramon\PointSystem\Model\TitleDecoration;
 use Ramon\PointSystem\Model\UserPoints;
+use Ramon\PointSystem\Support\ItemPricing;
 use WeakMap;
 
 class UserFields
@@ -63,6 +65,16 @@ class UserFields
     protected WeakMap $pointsCache;
 
     /**
+     * All claims for one serialized user, loaded at most once. This cache is
+     * intentionally per user instance instead of a global eager-load: loading
+     * every claim for every author in a post list would be more expensive than
+     * the five small lookups this replaces.
+     *
+     * @var WeakMap<User, Collection<int, ShopClaim>>
+     */
+    protected WeakMap $claimsCache;
+
+    /**
      * GLOBAL (not per-User) cache of decoration rows, keyed by `{class}:{id}`.
      *
      * A decoration row is IDENTICAL for every user (the catalog is admin-curated
@@ -85,6 +97,7 @@ class UserFields
     public function __construct()
     {
         $this->pointsCache = new WeakMap();
+        $this->claimsCache = new WeakMap();
     }
 
     public function __invoke(): array
@@ -100,12 +113,12 @@ class UserFields
 
             Schema\Integer::make('equippedAvatarDecorationId')
                 ->nullable()
-                ->get(fn (User $user) => $this->points($user)?->current_avatar_decoration_id),
+                ->get(fn (User $user) => $this->activeEquippedId($user, ShopClaim::TYPE_AVATAR)),
 
             Schema\Str::make('equippedAvatarDecorationUrl')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_avatar_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_AVATAR);
                     if (! $id) {
                         return null;
                     }
@@ -119,12 +132,12 @@ class UserFields
 
             Schema\Integer::make('equippedNameDecorationId')
                 ->nullable()
-                ->get(fn (User $user) => $this->points($user)?->current_name_decoration_id),
+                ->get(fn (User $user) => $this->activeEquippedId($user, ShopClaim::TYPE_NAME)),
 
             Schema\Str::make('equippedNameDecorationSlug')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_name_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_NAME);
                     if (! $id) {
                         return null;
                     }
@@ -133,12 +146,12 @@ class UserFields
 
             Schema\Integer::make('equippedCoverDecorationId')
                 ->nullable()
-                ->get(fn (User $user) => $this->points($user)?->current_cover_decoration_id),
+                ->get(fn (User $user) => $this->activeEquippedId($user, ShopClaim::TYPE_COVER)),
 
             Schema\Str::make('equippedCoverDecorationUrl')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_cover_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_COVER);
                     if (! $id) {
                         return null;
                     }
@@ -148,12 +161,12 @@ class UserFields
 
             Schema\Integer::make('equippedTitleDecorationId')
                 ->nullable()
-                ->get(fn (User $user) => $this->points($user)?->current_title_decoration_id),
+                ->get(fn (User $user) => $this->activeEquippedId($user, ShopClaim::TYPE_TITLE)),
 
             Schema\Str::make('equippedTitleDecorationSlug')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_title_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_TITLE);
                     if (! $id) {
                         return null;
                     }
@@ -163,7 +176,7 @@ class UserFields
             Schema\Str::make('equippedTitleDecorationText')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_title_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_TITLE);
                     if (! $id) {
                         return null;
                     }
@@ -172,12 +185,12 @@ class UserFields
 
             Schema\Integer::make('equippedPostHighlightDecorationId')
                 ->nullable()
-                ->get(fn (User $user) => $this->points($user)?->current_post_hl_decoration_id),
+                ->get(fn (User $user) => $this->activeEquippedId($user, ShopClaim::TYPE_POST_HL)),
 
             Schema\Str::make('equippedPostHighlightDecorationSlug')
                 ->nullable()
                 ->get(function (User $user): ?string {
-                    $id = $this->points($user)?->current_post_hl_decoration_id;
+                    $id = $this->activeEquippedId($user, ShopClaim::TYPE_POST_HL);
                     if (! $id) {
                         return null;
                     }
@@ -191,18 +204,35 @@ class UserFields
                 ->get(function (User $user) {
                     // Cap at 2000 to keep the UserResource payload bounded
                     // when a user has accumulated very many claims.
-                    return ShopClaim::where('user_id', $user->id)
-                        ->orderByDesc('id')
-                        ->limit(2000)
-                        ->get(['item_type', 'item_id', 'quantity'])
+                    return $this->claims($user)
+                        ->take(2000)
                         ->map(fn ($c) => [
                             'type' => $c->item_type,
                             'id' => $c->item_id,
                             'quantity' => (int) $c->quantity,
+                            'purchaseType' => $c->purchase_type ?: ItemPricing::TYPE_ONETIME,
+                            'expiresAt' => optional($c->expires_at)?->toIso8601String(),
+                            'isActive' => ItemPricing::claimIsActive($c),
                         ])
+                        ->values()
                         ->toArray();
                 }),
         ];
+    }
+
+    /**
+     * Read all claims once for the current User model. Expired records remain
+     * available so the frontend can show their state and offer renewal.
+     */
+    protected function claims(User $user): Collection
+    {
+        if (! $this->claimsCache->offsetExists($user)) {
+            $this->claimsCache[$user] = ShopClaim::where('user_id', $user->id)
+                ->orderByDesc('id')
+                ->get(['id', 'item_type', 'item_id', 'quantity', 'purchase_type', 'expires_at']);
+        }
+
+        return $this->claimsCache[$user];
     }
 
     /**
@@ -226,6 +256,35 @@ class UserFields
             $this->pointsCache[$user] = $user->pointsBalance;
         }
         return $this->pointsCache[$user];
+    }
+
+    protected function activeEquippedId(User $user, string $type): ?int
+    {
+        $points = $this->points($user);
+        if (! $points) {
+            return null;
+        }
+
+        $column = match ($type) {
+            ShopClaim::TYPE_AVATAR => 'current_avatar_decoration_id',
+            ShopClaim::TYPE_NAME => 'current_name_decoration_id',
+            ShopClaim::TYPE_COVER => 'current_cover_decoration_id',
+            ShopClaim::TYPE_TITLE => 'current_title_decoration_id',
+            ShopClaim::TYPE_POST_HL => 'current_post_hl_decoration_id',
+            default => null,
+        };
+        $id = $column ? (int) ($points->{$column} ?? 0) : 0;
+        if ($id <= 0) {
+            return null;
+        }
+
+        $claim = $this->claims($user)
+            ->first(fn (ShopClaim $claim) =>
+                (string) $claim->item_type === $type
+                && (int) $claim->item_id === $id
+            );
+
+        return $claim && ItemPricing::claimIsActive($claim) ? $id : null;
     }
 
     /**

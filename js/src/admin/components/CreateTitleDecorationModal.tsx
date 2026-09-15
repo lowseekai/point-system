@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import AvailabilityInputs from './AvailabilityInputs';
+import ShopPricingInputs from './ShopPricingInputs';
 import { pointsLabel } from '../../common/utils/pointsLabel';
 import { cssVar } from '../../common/utils/contrastClass';
 
@@ -30,6 +31,13 @@ export default class CreateTitleDecorationModal extends Modal {
     price: 100,
     customCss: '',
     availability: EMPTY_AVAILABILITY(),
+    pricing: {
+      isRecommended: false,
+      isHot: false,
+      discountPercent: 0,
+      discountDays: 0,
+      purchaseType: 'onetime',
+    },
   };
   saving = false;
 
@@ -109,6 +117,7 @@ export default class CreateTitleDecorationModal extends Modal {
           <p className="helpText">{t('field_css_help')}</p>
         </div>
 
+        <ShopPricingInputs state={draft.pricing} onchange={(s: any) => (draft.pricing = s)} />
         <AvailabilityInputs state={draft.availability} onchange={(s: any) => (draft.availability = s)} />
 
         <div className="Form-group EditDecorationModal-actions">
@@ -135,6 +144,7 @@ export default class CreateTitleDecorationModal extends Modal {
     m.redraw();
     try {
       const av = draft.availability || EMPTY_AVAILABILITY();
+      const pricing = draft.pricing || {};
       await app.store.createRecord('point-system-title-decorations').save({
         name: draft.name.trim(),
         titleText: draft.titleText.trim(),
@@ -148,6 +158,11 @@ export default class CreateTitleDecorationModal extends Modal {
         availableUntil: av.availableUntil || null,
         isListed: !!av.isListed,
         allowedGroupIds: Array.isArray(av.allowedGroupIds) ? av.allowedGroupIds : [],
+        isRecommended: !!pricing.isRecommended,
+        isHot: !!pricing.isHot,
+        discountPercent: Number(pricing.discountPercent) || 0,
+        discountDays: Number(pricing.discountDays) || 0,
+        purchaseType: pricing.purchaseType || 'onetime',
       });
       if (this.attrs.onCreated) this.attrs.onCreated();
       app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.admin.title.created'));

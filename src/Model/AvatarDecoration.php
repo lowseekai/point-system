@@ -24,6 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon|null $available_until
  * @property bool $is_listed
  * @property array|null $allowed_group_ids
+ * @property bool $is_recommended
+ * @property bool $is_hot
+ * @property int $discount_percent
+ * @property int $discount_days
+ * @property \Carbon\Carbon|null $discount_started_at
+ * @property string $purchase_type
  * @property int|null $creator_id
  * @property string $status
  */
@@ -47,6 +53,11 @@ class AvatarDecoration extends AbstractModel
         'available_until'   => 'datetime',
         'allowed_group_ids' => 'array',
         'creator_id'        => 'integer',
+        'is_recommended'    => 'boolean',
+        'is_hot'            => 'boolean',
+        'discount_percent'  => 'integer',
+        'discount_days'     => 'integer',
+        'discount_started_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -54,6 +65,8 @@ class AvatarDecoration extends AbstractModel
         'is_animated', 'price', 'is_enabled', 'sort',
         'max_claims', 'claim_count', 'available_from', 'available_until',
         'is_listed', 'allowed_group_ids',
+        'is_recommended', 'is_hot', 'discount_percent', 'discount_days',
+        'discount_started_at', 'purchase_type',
         'creator_id', 'status',
     ];
 

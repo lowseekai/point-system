@@ -575,6 +575,7 @@ export default class TradeModal extends Modal {
     }
 
     const candidates = owned
+      .filter((o: any) => o.isActive !== false)
       .map((o: any) => this.resolveItem(o.type, Number(o.id)))
       .filter((it: any) => it && !onTable.has(`${it.itemType}:${it.itemId}`))
       .filter((it: any) => !equippedSet.has(`${it.itemType}:${it.itemId}`));

@@ -56,8 +56,11 @@ class ShopClaimResource extends AbstractDatabaseResource
             Schema\Integer::make('userId')->property('user_id'),
             Schema\Str::make('itemType')->property('item_type'),
             Schema\Integer::make('itemId')->property('item_id'),
+            Schema\Integer::make('quantity'),
             Schema\Integer::make('pricePaid')->property('price_paid'),
+            Schema\Str::make('purchaseType')->property('purchase_type'),
             Schema\DateTime::make('claimedAt')->property('claimed_at'),
+            Schema\DateTime::make('expiresAt')->property('expires_at')->nullable(),
         ];
     }
 }
