@@ -1,0 +1,14 @@
+ramon-point-system:
+  admin:
+    shop_pricing:
+      legend: "商城价格与标签"
+      recommended: "今日推荐"
+      hot: "热门商品"
+      discount_percent: "折扣 (%)"
+      discount_days: "折扣时长（天）"
+      purchase_type: "购买类型"
+      onetime: "永久拥有"
+      monthly: "按月付费"
+      yearly: "按年付费"
+      help: "折扣在保存后开始生效。折扣填写 0 时保持原价。限时购买将在 30 天或 365 天后到期。"
+      discount_ends: "折扣结束于 {date}"
