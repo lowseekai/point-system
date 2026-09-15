@@ -1,7 +1,24 @@
 ramon-point-system:
+  forum:
+    submit:
+      description_label: "描述"
+      custom_css_label: "自定义 CSS（可选）"
   admin:
+    avatar:
+      field_description: "描述"
+    cover:
+      field_description: "描述"
+    name:
+      field_description: "描述"
+      field_css: "自定义 CSS（可选）"
+    title:
+      field_description: "描述"
+      field_css: "自定义 CSS（可选）"
+    post_hl:
+      field_description: "描述"
+      field_css: "自定义 CSS（可选）"
     shop_pricing:
-      legend: "商城价格与标签"
+      legend: "商品价格和标签"
       recommended: "今日推荐"
       hot: "热门商品"
       discount_percent: "折扣 (%)"
