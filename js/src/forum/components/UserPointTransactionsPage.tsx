@@ -175,7 +175,7 @@ export default class UserPointTransactionsPage extends UserPage {
   }
 
   reasonLabel(reason?: string | null): string {
-    const key = {
+    const labels: Record<string, string> = {
       'discussion.started': 'discussion_started',
       'post.posted': 'post_posted',
       'like.received': 'like_received',
@@ -188,16 +188,52 @@ export default class UserPointTransactionsPage extends UserPage {
       'tier.claim': 'tier_claim',
       'group.purchase': 'group_purchase',
       'admin.adjustment': 'admin_adjustment',
-    }[String(reason || '')];
+      'lottery.entry': 'lottery_entry',
+      'lottery.entry.refund': 'lottery_entry_refund',
+      'lottery.host_reward': 'lottery_host_reward',
+      'red_packet.create': 'red_packet_create',
+      'red_packet.claim': 'red_packet_claim',
+      'red_packet.refund': 'red_packet_refund',
+    };
+
+    const key = labels[String(reason || '')];
 
     return key ? (app.translator.trans(`ramon-point-system.forum.point_transactions_page.reasons.${key}`) as string) : String(reason || '-');
   }
 
   referenceLabel(transaction: any): string {
     if (!transaction?.referenceType && !transaction?.referenceId) return '-';
-    const type = String(transaction.referenceType || 'record');
-    const id = transaction.referenceId ? ` #${transaction.referenceId}` : '';
-    return `${type}${id}`;
+    const type = this.referenceTypeLabel(String(transaction.referenceType || 'record'));
+    const id = transaction.referenceId ? Number(transaction.referenceId) : null;
+
+    return id
+      ? (app.translator.trans('ramon-point-system.forum.point_transactions_page.reference_with_id', {
+          type,
+          id,
+        }) as string)
+      : type;
+  }
+
+  referenceTypeLabel(referenceType: string): string {
+    const labels: Record<string, string> = {
+      avatar_decoration: 'avatar_decoration',
+      name_decoration: 'name_decoration',
+      cover_decoration: 'cover_decoration',
+      title_decoration: 'title_decoration',
+      post_highlight_decoration: 'post_highlight_decoration',
+      group_offer: 'group_offer',
+      lottery: 'lottery',
+      'doingfb-red-packet': 'red_packet',
+      red_packet: 'red_packet',
+      trade: 'trade',
+      record: 'record',
+    };
+
+    const key = labels[referenceType];
+
+    return key
+      ? (app.translator.trans(`ramon-point-system.forum.point_transactions_page.references.${key}`) as string)
+      : referenceType;
   }
 
   formatTime(iso?: string | null): string {
