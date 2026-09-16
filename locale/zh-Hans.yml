@@ -1,5 +1,33 @@
 ramon-point-system:
   forum:
+    user_profile:
+      point_transactions_link: "积分记录"
+    point_transactions_page:
+      title: "积分记录"
+      subtitle: "查看所有积分收入和支出，时间均按北京时间显示。"
+      time: "时间"
+      balance_change: "积分变动"
+      reason: "变动原因"
+      reference: "关联信息"
+      empty: "暂时还没有积分变动记录。"
+      load_failed: "积分记录加载失败，请检查网络后重试。"
+      retry: "重试"
+      prev: "上一页"
+      next: "下一页"
+      page: "第 {from}-{to} 条，共 {total} 条"
+      reasons:
+        discussion_started: "发表主题"
+        post_posted: "回复主题"
+        like_received: "帖子收到点赞"
+        like_given: "点赞帖子"
+        like_received_revert: "撤销帖子点赞"
+        like_given_revert: "撤销点赞"
+        user_registered: "注册奖励"
+        user_daily_login: "每日登录奖励"
+        shop_claim: "购买奖励商品"
+        tier_claim: "加入用户组"
+        group_purchase: "购买用户组"
+        admin_adjustment: "管理员调整"
     submit:
       description_label: "描述"
       custom_css_label: "自定义 CSS（可选）"

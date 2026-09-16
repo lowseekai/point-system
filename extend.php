@@ -34,7 +34,8 @@ $extenders = [
         ->route('/rewards/{tab}', 'pointSystem.shop.tab')
         ->route('/decorations', 'pointSystem.decorations')
         ->route('/decorations/{tab}', 'pointSystem.decorations.tab')
-        ->route('/trades', 'pointSystem.trades'),
+        ->route('/trades', 'pointSystem.trades')
+        ->route('/u/{username}/point-transactions', 'user.pointTransactions'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
@@ -162,6 +163,7 @@ $extenders = [
         ->post('/point-system/award', 'pointSystem.award', Controller\ManualAwardController::class)
         ->post('/point-system/bulk-award', 'pointSystem.bulkAward', Controller\BulkAwardController::class)
         ->post('/point-system/grant', 'pointSystem.grant', Controller\GrantItemController::class)
+        ->get('/point-system/transactions', 'pointSystem.transactions.list', Controller\ListTransactionsController::class)
         // ── Trades ──────────────────────────────────────────────────────
         ->get('/point-system/trades', 'pointSystem.trades.list', Controller\ListTradesController::class)
         ->post('/point-system/trades', 'pointSystem.trades.open', Controller\OpenTradeController::class)

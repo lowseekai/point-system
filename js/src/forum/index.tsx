@@ -16,6 +16,7 @@ import ShopPage from './components/ShopPage';
 import DecorationsPage from './components/DecorationsPage';
 import TradesPage from './components/TradesPage';
 import UserTradesPage from './components/UserTradesPage';
+import UserPointTransactionsPage from './components/UserPointTransactionsPage';
 import UserPage from 'flarum/forum/components/UserPage';
 import AwardPointsModal from './components/AwardPointsModal';
 import PointsManualNotification from './components/PointsManualNotification';
@@ -73,6 +74,7 @@ app.initializers.add('ramon/point-system', () => {
   app.routes['pointSystem.decorations.tab'] = { path: '/decorations/:tab', component: DecorationsPage };
   app.routes['pointSystem.trades'] = { path: '/trades', component: TradesPage };
   app.routes['user.trades'] = { path: '/u/:username/trades', component: UserTradesPage };
+  app.routes['user.pointTransactions'] = { path: '/u/:username/point-transactions', component: UserPointTransactionsPage };
 
   // ── Notification components ─────────────────────────────────────────────
   app.notificationComponents.pointsManual = PointsManualNotification;
@@ -290,7 +292,6 @@ app.initializers.add('ramon/point-system', () => {
     if (!user) return;
     const me = app.session.user;
     if (!me || Number(me.id?.()) !== Number(user.id?.())) return;
-    if (!app.forum.attribute('pointSystemTradeEnabled')) return;
 
     // Use the top-level `import LinkButton from 'flarum/common/components/LinkButton'`.
     // The earlier `require(...).default` shim returned undefined under the
@@ -298,12 +299,22 @@ app.initializers.add('ramon/point-system', () => {
     // strings to externals, and the `.default` accessor fired against an
     // undefined module → Mithril's "selector must be a string or component"
     // crash on the user profile route.
+    if (app.forum.attribute('pointSystemTradeEnabled')) {
+      items.add(
+        'pointSystem-trades',
+        <LinkButton href={app.route('user.trades', { username: user.slug() })} icon="fas fa-handshake">
+          {app.translator.trans('ramon-point-system.forum.user_profile.trades_link')}
+        </LinkButton>,
+        85
+      );
+    }
+
     items.add(
-      'pointSystem-trades',
-      <LinkButton href={app.route('user.trades', { username: user.slug() })} icon="fas fa-handshake">
-        {app.translator.trans('ramon-point-system.forum.user_profile.trades_link')}
+      'pointSystem-point-transactions',
+      <LinkButton href={app.route('user.pointTransactions', { username: user.slug() })} icon="fas fa-coins">
+        {app.translator.trans('ramon-point-system.forum.user_profile.point_transactions_link')}
       </LinkButton>,
-      85
+      80
     );
   });
 
