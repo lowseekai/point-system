@@ -32,6 +32,8 @@ use Ramon\PointSystem\Repository\PointsRepository;
  */
 class AwardDailyLoginBonus
 {
+    private const BUSINESS_TIMEZONE = 'Asia/Shanghai';
+
     public function __construct(
         protected PointsRepository $points,
         protected ConnectionInterface $db,
@@ -50,7 +52,8 @@ class AwardDailyLoginBonus
         }
 
         $user = $event->user;
-        $today = Carbon::now()->startOfDay();
+        // Daily rewards follow the forum's calendar day; timestamps remain UTC in storage.
+        $today = Carbon::now(self::BUSINESS_TIMEZONE)->startOfDay()->utc();
 
         $this->db->transaction(function () use ($user, $amount, $today) {
             /*
@@ -74,7 +77,7 @@ class AwardDailyLoginBonus
                 return;
             }
 
-            $row->last_daily_bonus_at = Carbon::now();
+            $row->last_daily_bonus_at = Carbon::now('UTC');
             $row->save();
 
             // `award()` abre uma sub-transação (savepoint em MySQL) dentro
