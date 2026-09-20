@@ -4,6 +4,60 @@ import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import { pointsLabel } from '../../common/utils/pointsLabel';
 
+const REASON_LABELS: Record<string, string> = {
+  'discussion.started': 'discussion_started',
+  'post.posted': 'post_posted',
+  'like.received': 'like_received',
+  'like.given': 'like_given',
+  'like.received.revert': 'like_received_revert',
+  'like.given.revert': 'like_given_revert',
+  'user.registered': 'user_registered',
+  'user.daily_login': 'user_daily_login',
+  'shop.claim': 'shop_claim',
+  'tier.claim': 'tier_claim',
+  'group.purchase': 'group_purchase',
+  'admin.adjustment': 'admin_adjustment',
+  'admin.bulk': 'admin_bulk',
+  trade: 'trade',
+  trade_reverted: 'trade_reverted',
+  'advertising.purchase': 'advertising_purchase',
+  'advertising.renewal': 'advertising_renewal',
+  'advertising.auto_renewal': 'advertising_auto_renewal',
+  'pay2see.purchase': 'pay2see_purchase',
+  'pay2see.income': 'pay2see_income',
+  'lottery.entry': 'lottery_entry',
+  'lottery.entry.refund': 'lottery_entry_refund',
+  'lottery.host_reward': 'lottery_host_reward',
+  'red_packet.create': 'red_packet_create',
+  'red_packet.claim': 'red_packet_claim',
+  'red_packet.refund': 'red_packet_refund',
+  'referral.invite_code.purchase': 'referral_invite_code_purchase',
+  'referral.inviter.reward': 'referral_inviter_reward',
+};
+
+const REFERENCE_LABELS: Record<string, string> = {
+  avatar_decoration: 'avatar_decoration',
+  name_decoration: 'name_decoration',
+  cover_decoration: 'cover_decoration',
+  title_decoration: 'title_decoration',
+  post_highlight_decoration: 'post_highlight_decoration',
+  group_offer: 'group_offer',
+  post: 'post',
+  discussion: 'discussion',
+  user: 'user',
+  lottery: 'lottery',
+  'doingfb-red-packet': 'red_packet',
+  red_packet: 'red_packet',
+  trade: 'trade',
+  advertising_ad: 'advertising_ad',
+  advertising_renewal: 'advertising_renewal',
+  referral_invite_code: 'referral_invite_code',
+  'LinkRobins\\Referral\\InviteCode': 'referral_invite_code',
+  record: 'record',
+};
+
+const INTERNAL_REASON_PATTERN = /^[a-z][a-z0-9_]*(?:[._][a-z0-9_]+)+$/;
+
 /**
  * The authenticated user's point ledger. The API is deliberately scoped to
  * the current actor, and this component applies the same self-only gate as
@@ -175,30 +229,18 @@ export default class UserPointTransactionsPage extends UserPage {
   }
 
   reasonLabel(reason?: string | null): string {
-    const labels: Record<string, string> = {
-      'discussion.started': 'discussion_started',
-      'post.posted': 'post_posted',
-      'like.received': 'like_received',
-      'like.given': 'like_given',
-      'like.received.revert': 'like_received_revert',
-      'like.given.revert': 'like_given_revert',
-      'user.registered': 'user_registered',
-      'user.daily_login': 'user_daily_login',
-      'shop.claim': 'shop_claim',
-      'tier.claim': 'tier_claim',
-      'group.purchase': 'group_purchase',
-      'admin.adjustment': 'admin_adjustment',
-      'lottery.entry': 'lottery_entry',
-      'lottery.entry.refund': 'lottery_entry_refund',
-      'lottery.host_reward': 'lottery_host_reward',
-      'red_packet.create': 'red_packet_create',
-      'red_packet.claim': 'red_packet_claim',
-      'red_packet.refund': 'red_packet_refund',
-    };
+    if (!reason) return '-';
 
-    const key = labels[String(reason || '')];
+    const value = String(reason);
+    const key = REASON_LABELS[value];
 
-    return key ? (app.translator.trans(`ramon-point-system.forum.point_transactions_page.reasons.${key}`) as string) : String(reason || '-');
+    if (key) {
+      return app.translator.trans(`ramon-point-system.forum.point_transactions_page.reasons.${key}`) as string;
+    }
+
+    return INTERNAL_REASON_PATTERN.test(value)
+      ? (app.translator.trans('ramon-point-system.forum.point_transactions_page.reasons.other') as string)
+      : value;
   }
 
   referenceLabel(transaction: any): string {
@@ -215,25 +257,9 @@ export default class UserPointTransactionsPage extends UserPage {
   }
 
   referenceTypeLabel(referenceType: string): string {
-    const labels: Record<string, string> = {
-      avatar_decoration: 'avatar_decoration',
-      name_decoration: 'name_decoration',
-      cover_decoration: 'cover_decoration',
-      title_decoration: 'title_decoration',
-      post_highlight_decoration: 'post_highlight_decoration',
-      group_offer: 'group_offer',
-      lottery: 'lottery',
-      'doingfb-red-packet': 'red_packet',
-      red_packet: 'red_packet',
-      trade: 'trade',
-      record: 'record',
-    };
+    const key = REFERENCE_LABELS[referenceType] || 'record';
 
-    const key = labels[referenceType];
-
-    return key
-      ? (app.translator.trans(`ramon-point-system.forum.point_transactions_page.references.${key}`) as string)
-      : referenceType;
+    return app.translator.trans(`ramon-point-system.forum.point_transactions_page.references.${key}`) as string;
   }
 
   formatTime(iso?: string | null): string {
