@@ -65,6 +65,7 @@ ramon-point-system:
         red_packet_refund: "红包剩余退款"
         referral_invite_code_purchase: "购买邀请码"
         referral_inviter_reward: "邀请注册奖励"
+        content_risk_fee: "内容风险费用扣除"
         other: "其他积分变动"
     submit:
       description_label: "描述"

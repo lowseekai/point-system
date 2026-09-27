@@ -35,6 +35,7 @@ const REASON_LABELS: Record<string, string> = {
   'red_packet.refund': 'red_packet_refund',
   'referral.invite_code.purchase': 'referral_invite_code_purchase',
   'referral.inviter.reward': 'referral_inviter_reward',
+  'content-risk.fee': 'content_risk_fee',
 };
 
 const REFERENCE_LABELS: Record<string, string> = {
