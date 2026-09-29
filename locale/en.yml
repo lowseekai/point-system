@@ -306,6 +306,7 @@ ramon-point-system:
       expired: "Expired"
       toggle_nav_label: "Toggle decorations section menu"
   admin:
+    saved_message: "Settings saved"
     enable: "Enable"
     disable: "Disable"
     edit: "Edit"

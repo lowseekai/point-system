@@ -242,7 +242,7 @@ export default class PointsRulesPanel extends Component {
       await app.request({ method: 'POST', url: `${apiUrl}/settings`, body: this.dirty });
       Object.assign(app.data.settings, this.dirty);
       this.dirty = {};
-      app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.basics.saved_message'));
+      app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.admin.saved_message'));
     } catch (e) {
       app.alerts.show({ type: 'error' }, 'Save failed');
     } finally {

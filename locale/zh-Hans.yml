@@ -71,6 +71,7 @@ ramon-point-system:
       description_label: "描述"
       custom_css_label: "自定义 CSS（可选）"
   admin:
+    saved_message: "设置已保存"
     avatar:
       field_description: "描述"
     cover:
