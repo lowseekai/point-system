@@ -321,6 +321,7 @@ ramon-point-system:
       field_description: "描述"
       field_css: "自定义 CSS（可选）"
     title:
+      edit_title: "编辑头衔 — {name}"
       field_description: "描述"
       field_css: "自定义 CSS（可选）"
     post_hl:

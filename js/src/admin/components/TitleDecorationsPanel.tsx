@@ -73,6 +73,9 @@ export default class TitleDecorationsPanel extends Component {
                         ? app.translator.trans('ramon-point-system.admin.disable')
                         : app.translator.trans('ramon-point-system.admin.enable')}
                     </Button>
+                    <Button className="Button" onclick={() => app.modal.show(CreateTitleDecorationModal, { deco: it, onSaved: () => this.load() })}>
+                      <i className="fas fa-pen" /> {app.translator.trans('ramon-point-system.admin.edit')}
+                    </Button>
                     <Button
                       className="Button"
                       onclick={() =>

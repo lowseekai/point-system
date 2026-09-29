@@ -554,6 +554,7 @@ ramon-point-system:
       title: "Custom titles"
       help: "Short badge text shown next to the username (e.g. \"Veteran\", \"Patron\"). Each title can have its own colour and optional custom CSS."
       create_title: "Create a new title"
+      edit_title: "Edit title — {name}"
       create: "Create title"
       created: "Title created."
       field_name: "Name (admin label)"

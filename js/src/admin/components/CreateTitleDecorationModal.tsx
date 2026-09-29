@@ -41,12 +41,44 @@ export default class CreateTitleDecorationModal extends Modal {
   };
   saving = false;
 
+  oninit(vnode: any) {
+    super.oninit(vnode);
+    const deco = this.attrs.deco;
+    if (!deco) return;
+
+    this.draft = {
+      name: deco.attribute('name') || '',
+      titleText: deco.attribute('titleText') || '',
+      description: deco.attribute('description') || '',
+      color: deco.attribute('color') || '',
+      price: Number(deco.attribute('price') || 0),
+      customCss: deco.attribute('customCss') || '',
+      availability: {
+        maxClaims: deco.attribute('maxClaims'),
+        claimCount: Number(deco.attribute('claimCount') || 0),
+        availableFrom: deco.attribute('availableFrom') || '',
+        availableUntil: deco.attribute('availableUntil') || '',
+        isListed: deco.attribute('isListed') !== false,
+        allowedGroupIds: Array.isArray(deco.attribute('allowedGroupIds')) ? deco.attribute('allowedGroupIds') : [],
+      },
+      pricing: {
+        isRecommended: !!deco.attribute('isRecommended'),
+        isHot: !!deco.attribute('isHot'),
+        discountPercent: Number(deco.attribute('discountPercent') || 0),
+        discountDays: Number(deco.attribute('discountDays') || 0),
+        purchaseType: deco.attribute('purchaseType') || 'onetime',
+      },
+    };
+  }
+
   className() {
     return 'EditDecorationModal CreateDecorationModal Modal--medium';
   }
 
   title() {
-    return app.translator.trans('ramon-point-system.admin.title.create_title');
+    return this.attrs.deco
+      ? app.translator.trans('ramon-point-system.admin.title.edit_title', { name: this.attrs.deco.attribute('name') || '' })
+      : app.translator.trans('ramon-point-system.admin.title.create_title');
   }
 
   content() {
@@ -127,7 +159,8 @@ export default class CreateTitleDecorationModal extends Modal {
             disabled={this.saving || !draft.name.trim() || !draft.titleText.trim()}
             onclick={() => this.commit()}
           >
-            <i className="fas fa-plus" /> {t('create')}
+            <i className={this.attrs.deco ? 'fas fa-save' : 'fas fa-plus'} />{' '}
+            {this.attrs.deco ? app.translator.trans('ramon-point-system.admin.save') : t('create')}
           </Button>
           <Button className="Button" disabled={this.saving} onclick={() => this.hide()}>
             {app.translator.trans('ramon-point-system.admin.cancel')}
@@ -145,14 +178,13 @@ export default class CreateTitleDecorationModal extends Modal {
     try {
       const av = draft.availability || EMPTY_AVAILABILITY();
       const pricing = draft.pricing || {};
-      await app.store.createRecord('point-system-title-decorations').save({
+      const attrs = {
         name: draft.name.trim(),
         titleText: draft.titleText.trim(),
         description: draft.description || null,
         color: draft.color || null,
         customCss: draft.customCss || null,
         price: Number(draft.price) || 0,
-        isEnabled: true,
         maxClaims: av.maxClaims,
         availableFrom: av.availableFrom || null,
         availableUntil: av.availableUntil || null,
@@ -163,9 +195,16 @@ export default class CreateTitleDecorationModal extends Modal {
         discountPercent: Number(pricing.discountPercent) || 0,
         discountDays: Number(pricing.discountDays) || 0,
         purchaseType: pricing.purchaseType || 'onetime',
-      });
-      if (this.attrs.onCreated) this.attrs.onCreated();
-      app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.admin.title.created'));
+      };
+      if (this.attrs.deco) {
+        await this.attrs.deco.save(attrs);
+        if (this.attrs.onSaved) this.attrs.onSaved();
+        app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.admin.saved_message'));
+      } else {
+        await app.store.createRecord('point-system-title-decorations').save({ ...attrs, isEnabled: true });
+        if (this.attrs.onCreated) this.attrs.onCreated();
+        app.alerts.show({ type: 'success' }, app.translator.trans('ramon-point-system.admin.title.created'));
+      }
       this.hide();
     } catch (e: any) {
       app.alerts.show({ type: 'error' }, e?.response?.errors?.[0]?.detail || 'Error');
