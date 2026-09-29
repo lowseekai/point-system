@@ -454,6 +454,7 @@ export default class ShopPage extends Page {
       'PointSystemShop-card',
       `PointSystemShop-card--${item.type.replace(/_decoration$/, '').replace(/_/g, '-')}`,
       item.isAnimated ? 'is-animated' : '',
+      item.isRecommended || item.isHot ? 'has-promotional-ribbon' : '',
       owned ? 'is-owned' : '',
       equipped ? 'is-equipped' : '',
       expired ? 'is-expired' : '',
@@ -468,21 +469,21 @@ export default class ShopPage extends Page {
             <i className="fas fa-check-circle" /> {app.translator.trans('ramon-point-system.forum.shop.equipped_label')}
           </div>
         )}
-        {(badges.length > 0 || item.isRecommended || item.isHot) && (
-          <div className="PointSystemShop-card-badges">
+        {(item.isRecommended || item.isHot) && (
+          <div className="PointSystemShop-card-ribbons">
             {item.isRecommended && (
-              <span className="PointSystemShop-card-badge is-recommended">
+              <span className="PointSystemShop-card-ribbon is-recommended">
                 <i className="fas fa-star" /> {app.translator.trans('ramon-point-system.forum.shop.badge_recommended')}
               </span>
             )}
             {item.isHot && (
-              <span className="PointSystemShop-card-badge is-hot">
+              <span className="PointSystemShop-card-ribbon is-hot">
                 <i className="fas fa-fire" /> {app.translator.trans('ramon-point-system.forum.shop.badge_hot')}
               </span>
             )}
-            {badges}
           </div>
         )}
+        {badges.length > 0 && <div className="PointSystemShop-card-badges">{badges}</div>}
 
         <div className="PointSystemShop-card-preview">
           {item.type === 'avatar_decoration'
@@ -749,6 +750,18 @@ export default class ShopPage extends Page {
         badges.push(
           <span className={`PointSystemShop-card-badge ${cls}`}>
             <i className="fas fa-hourglass-half" /> {label}
+          </span>
+        );
+      }
+    }
+
+    if (Number(item.discountPercent || 0) > 0 && item.discountEndsAt) {
+      const remainingMs = new Date(item.discountEndsAt).getTime() - Date.now();
+      if (remainingMs > 0) {
+        const days = Math.max(1, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
+        badges.push(
+          <span className="PointSystemShop-card-badge is-discount">
+            <i className="fas fa-tags" /> {t('ramon-point-system.forum.shop.discount_ends_in_days', { count: days })}
           </span>
         );
       }
