@@ -222,6 +222,17 @@ app.initializers.add('ramon/point-system', () => {
           typeof prevStyle === 'string'
             ? `${prevStyle}${prevStyle.endsWith(';') || !prevStyle ? '' : ';'} ${styleAdd}`
             : { ...prevStyle, '--ps-cover-url': `url("${safeUrl}")` };
+
+        // The profile theme puts the narrower UserCard inside Page-hero.
+        // Mirror the URL on that outer element so its side gutters use the
+        // equipped cover instead of the theme's fallback background.
+        const previousOncreate = vnode.attrs.oncreate;
+        vnode.attrs.oncreate = (created: any) => {
+          const card = created.dom as HTMLElement | null;
+          const pageHero = card?.closest?.('.Page-hero') as HTMLElement | null;
+          pageHero?.style.setProperty('--ps-cover-url', `url("${safeUrl}")`);
+          previousOncreate?.(created);
+        };
       }
     }
   });

@@ -147,6 +147,16 @@
   background-repeat: no-repeat;
 }
 
+// The profile theme paints a blue background on `.Page-hero` and places the
+// narrower `.UserCard` on top. Mirror the equipped cover on the outer hero so
+// the image continues behind the avatar and reaches both viewport edges.
+.Page-hero:has(> .UserCard.ps-has-cover) {
+  background-image: var(--ps-cover-url);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 /*
  * O hero do Avocado passou a desenhar a capa num FILHO próprio
  * (`.AvocadoUserPage-cover`, 200px, com gradiente): pintar só o fundo do
