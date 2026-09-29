@@ -198,6 +198,27 @@
   background-size: 128.5% auto !important;
 }
 
+// On narrow screens the hero is taller than the cover's natural aspect ratio.
+// Fit the image to the hero height so no theme background shows above or below.
+@media (max-width: 991px) {
+  .UserHero.ps-has-cover,
+  .UserCard.ps-has-cover,
+  .AvocadoUserPage-hero.ps-has-cover:not(:has(> .AvocadoUserPage-cover)),
+  .Page-hero:has(.UserCard.ps-has-cover),
+  .UserCard.ps-has-cover .UserCard-cover,
+  .PointSystemDecorations-previewHero.ps-has-cover {
+    background-size: auto 100% !important;
+  }
+
+  .Page-hero:has(.UserCard.ps-has-cover)::before {
+    background-size: auto 100%;
+  }
+
+  .UserCard.ps-has-cover > .darkenBackground {
+    background-size: 100% 100%, auto 100% !important;
+  }
+}
+
 /*
  * O hero do Avocado passou a desenhar a capa num FILHO próprio
  * (`.AvocadoUserPage-cover`, 200px, com gradiente): pintar só o fundo do
