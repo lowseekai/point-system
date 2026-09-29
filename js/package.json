@@ -1,6 +1,6 @@
 {
   "name": "@ramon/point-system",
-  "version": "1.2.6",
+  "version": "1.2.8",
   "private": true,
   "prettier": "@flarum/prettier-config",
   "devDependencies": {
