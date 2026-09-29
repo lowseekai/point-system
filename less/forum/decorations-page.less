@@ -167,12 +167,8 @@
   background-repeat: no-repeat !important;
 }
 
-.UserCard.ps-has-cover > .darkenBackground {
-  background-color: transparent !important;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12)), var(--ps-cover-url) !important;
-  background-position: center, center !important;
-  background-size: cover, cover !important;
-  background-repeat: no-repeat, no-repeat !important;
+.UserCard.ps-has-cover .darkenBackground {
+  background: linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12)), var(--ps-cover-url) center / cover no-repeat !important;
 }
 
 /*
