@@ -35,7 +35,9 @@ const REASON_LABELS: Record<string, string> = {
   'red_packet.refund': 'red_packet_refund',
   'referral.invite_code.purchase': 'referral_invite_code_purchase',
   'referral.inviter.reward': 'referral_inviter_reward',
-  'content-risk.fee': 'content_risk_fee',
+  'money_reward.sent': 'money_reward_sent',
+  'money_reward.received': 'money_reward_received',
+  'money_reward.created': 'money_reward_created',
 };
 
 const REFERENCE_LABELS: Record<string, string> = {
@@ -57,6 +59,7 @@ const REFERENCE_LABELS: Record<string, string> = {
   advertising_ad: 'advertising_ad',
   advertising_renewal: 'advertising_renewal',
   referral_invite_code: 'referral_invite_code',
+  money_reward: 'money_reward',
   'LinkRobins\\Referral\\InviteCode': 'referral_invite_code',
   record: 'record',
 };

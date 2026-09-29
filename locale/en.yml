@@ -105,6 +105,7 @@ ramon-point-system:
         advertising_ad: "Advertisement"
         advertising_renewal: "Advertisement renewal"
         referral_invite_code: "Invite code"
+        money_reward: "Point reward"
         record: "Record"
       reasons:
         discussion_started: "Started a discussion"
@@ -137,6 +138,9 @@ ramon-point-system:
         red_packet_refund: "Red packet refund"
         referral_invite_code_purchase: "Invite code purchase"
         referral_inviter_reward: "Invitation signup reward"
+        money_reward_sent: "Sent point reward"
+        money_reward_received: "Received point reward"
+        money_reward_created: "Created point reward"
         other: "Other point change"
     confirm:
       title: "Confirm purchase"
@@ -208,6 +212,7 @@ ramon-point-system:
       badge_remaining: "{count, plural, one {# left} other {# left}}"
       badge_ends_in_days: "{count, plural, one {Ends in # day} other {Ends in # days}}"
       badge_ends_in_hours: "{count, plural, one {Ends in # hour} other {Ends in # hours}}"
+      discount_ends_in_days: "Remaining {count} days"
       badge_starts_on: "Starts {date}"
       badge_recommended: "Today's pick"
       badge_hot: "Popular"
