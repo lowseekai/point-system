@@ -150,7 +150,7 @@
 // The profile theme paints a blue background on `.Page-hero` and places the
 // narrower `.UserCard` on top. Mirror the equipped cover on the outer hero so
 // the image continues behind the avatar and reaches both viewport edges.
-.Page-hero:has(> .UserCard.ps-has-cover) {
+.Page-hero:has(.UserCard.ps-has-cover) {
   position: relative;
   background-color: transparent !important;
   background-image: var(--ps-cover-url) !important;
@@ -159,7 +159,7 @@
   background-repeat: no-repeat !important;
 }
 
-.Page-hero:has(> .UserCard.ps-has-cover)::before {
+.Page-hero:has(.UserCard.ps-has-cover)::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -168,7 +168,7 @@
   pointer-events: none;
 }
 
-.Page-hero:has(> .UserCard.ps-has-cover) > .UserCard {
+.Page-hero:has(.UserCard.ps-has-cover) > .darkenBackground {
   position: relative;
   z-index: 1;
 }
@@ -182,8 +182,12 @@
   background-repeat: no-repeat !important;
 }
 
-.UserCard.ps-has-cover .darkenBackground {
-  background: linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12)), var(--ps-cover-url) center / cover no-repeat !important;
+.Page-hero:has(.UserCard.ps-has-cover) > .darkenBackground {
+  background-color: transparent !important;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12)), var(--ps-cover-url) !important;
+  background-position: center, center !important;
+  background-size: cover, cover !important;
+  background-repeat: no-repeat, no-repeat !important;
 }
 
 /*
