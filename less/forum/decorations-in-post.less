@@ -441,6 +441,15 @@ body.ps-hide-badges-with-deco {
   // later sibling of our wrap, so it naturally renders above the frame.
 }
 
+@media (max-width: 767px) {
+  .CommentPost .ps-avatar-deco-wrap > .ps-avatar-deco {
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+  }
+}
+
 // ─── Frame alignment inside hover-cards / user popovers ───────────────────────
 //
 // The frame (`.ps-avatar-deco`) is sized and centred against the WRAP, so it
