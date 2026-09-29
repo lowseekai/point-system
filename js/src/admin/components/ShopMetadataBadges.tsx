@@ -1,22 +1,24 @@
 import app from 'flarum/admin/app';
+import Component from 'flarum/common/Component';
 import { pointsLabel } from '../../common/utils/pointsLabel';
 
-export default function ShopMetadataBadges({ attrs }: { attrs: { deco: any } }) {
-  const { deco } = attrs;
-  const original = Number(deco.attribute('originalPrice') ?? deco.attribute('price') ?? 0);
-  const effective = Number(deco.attribute('effectivePrice') ?? deco.attribute('price') ?? 0);
-  const discount = Number(deco.attribute('discountPercent') ?? 0);
-  const purchaseType = String(deco.attribute('purchaseType') || 'onetime');
-  const endsAt = deco.attribute('discountEndsAt');
-  const typeLabel =
-    purchaseType === 'monthly'
-      ? app.translator.trans('ramon-point-system.admin.shop_pricing.monthly')
-      : purchaseType === 'yearly'
-        ? app.translator.trans('ramon-point-system.admin.shop_pricing.yearly')
-        : app.translator.trans('ramon-point-system.admin.shop_pricing.onetime');
+export default class ShopMetadataBadges extends Component {
+  view() {
+    const deco = this.attrs.deco;
+    const original = Number(deco.attribute('originalPrice') ?? deco.attribute('price') ?? 0);
+    const effective = Number(deco.attribute('effectivePrice') ?? deco.attribute('price') ?? 0);
+    const discount = Number(deco.attribute('discountPercent') ?? 0);
+    const purchaseType = String(deco.attribute('purchaseType') || 'onetime');
+    const endsAt = deco.attribute('discountEndsAt');
+    const typeLabel =
+      purchaseType === 'monthly'
+        ? app.translator.trans('ramon-point-system.admin.shop_pricing.monthly')
+        : purchaseType === 'yearly'
+          ? app.translator.trans('ramon-point-system.admin.shop_pricing.yearly')
+          : app.translator.trans('ramon-point-system.admin.shop_pricing.onetime');
 
-  return (
-    <div className="PointSystemAdmin-shopMeta">
+    return (
+      <div className="PointSystemAdmin-shopMeta">
       <span className="PointSystemAdmin-tag">
         {effective.toLocaleString()} {pointsLabel(app)}
         {effective < original && <del>{original.toLocaleString()}</del>}
@@ -42,6 +44,7 @@ export default function ShopMetadataBadges({ attrs }: { attrs: { deco: any } }) 
           })}
         </span>
       )}
-    </div>
-  );
+      </div>
+    );
+  }
 }
