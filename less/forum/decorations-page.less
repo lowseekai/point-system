@@ -151,10 +151,20 @@
 // narrower `.UserCard` on top. Mirror the equipped cover on the outer hero so
 // the image continues behind the avatar and reaches both viewport edges.
 .Page-hero:has(> .UserCard.ps-has-cover) {
-  background-image: var(--ps-cover-url);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-color: transparent !important;
+  background-image: var(--ps-cover-url) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.UserCard.ps-has-cover,
+.UserCard.ps-has-cover .UserCard-cover {
+  background-color: transparent !important;
+  background-image: var(--ps-cover-url) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
 }
 
 /*
