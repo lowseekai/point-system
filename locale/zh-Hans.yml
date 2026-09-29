@@ -214,7 +214,7 @@ ramon-point-system:
       badge_remaining: "剩余 {count} 件"
       badge_ends_in_days: "剩余 {count} 天"
       badge_ends_in_hours: "剩余 {count} 小时"
-      discount_ends_in_days: "剩余 {count} 天"
+      discount_ends_in_days: "限时折扣 {count} 天"
       badge_starts_on: "{date} 开始"
       badge_recommended: "今日推荐"
       badge_hot: "热门商品"

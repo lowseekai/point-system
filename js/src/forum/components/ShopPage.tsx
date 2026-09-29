@@ -449,6 +449,7 @@ export default class ShopPage extends Page {
     const claimKey = `${item.type}:${item.id}`;
     const isClaiming = this.claiming.has(claimKey);
     const badges = this.availabilityBadges(item);
+    const discountBadge = this.discountBadge(item);
 
     const cardCls = [
       'PointSystemShop-card',
@@ -528,8 +529,13 @@ export default class ShopPage extends Page {
             <i className={(app.forum.attribute('pointSystem.currency_icon') as string) || 'fas fa-coins'} />
             {currentPrice < originalPrice && <del>{originalPrice.toLocaleString()}</del>}
             <strong>{currentPrice.toLocaleString()}</strong>
-            {item.purchaseType && item.purchaseType !== 'onetime' && (
-              <small>{app.translator.trans(`ramon-point-system.forum.shop.purchase_${item.purchaseType}`)}</small>
+            {(item.purchaseType && item.purchaseType !== 'onetime' || discountBadge) && (
+              <div className="PointSystemShop-card-priceMeta">
+                {item.purchaseType && item.purchaseType !== 'onetime' && (
+                  <small>{app.translator.trans(`ramon-point-system.forum.shop.purchase_${item.purchaseType}`)}</small>
+                )}
+                {discountBadge}
+              </div>
             )}
           </div>
           {expired && (
@@ -755,18 +761,6 @@ export default class ShopPage extends Page {
       }
     }
 
-    if (Number(item.discountPercent || 0) > 0 && item.discountEndsAt) {
-      const remainingMs = new Date(item.discountEndsAt).getTime() - Date.now();
-      if (remainingMs > 0) {
-        const days = Math.max(1, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
-        badges.push(
-          <span className="PointSystemShop-card-badge is-discount">
-            <i className="fas fa-tags" /> {t('ramon-point-system.forum.shop.discount_ends_in_days', { count: days })}
-          </span>
-        );
-      }
-    }
-
     if (item.availableFrom && new Date(item.availableFrom).getTime() > Date.now()) {
       const dateLabel = new Date(item.availableFrom).toLocaleDateString();
       badges.push(
@@ -777,6 +771,23 @@ export default class ShopPage extends Page {
     }
 
     return badges;
+  }
+
+  discountBadge(item: ShopItem): any | null {
+    if (item.isAvailable === false || this.userOwns(item)) return null;
+    if (Number(item.discountPercent || 0) <= 0 || !item.discountEndsAt) return null;
+
+    const remainingMs = new Date(item.discountEndsAt).getTime() - Date.now();
+    if (remainingMs <= 0) return null;
+
+    const days = Math.max(1, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
+
+    return (
+      <span className="PointSystemShop-card-badge is-discount">
+        <i className="fas fa-tags" />
+        {app.translator.trans('ramon-point-system.forum.shop.discount_ends_in_days', { count: days })}
+      </span>
+    );
   }
 
   confirmClaim(item: ShopItem) {
