@@ -215,6 +215,13 @@
 // "texto inicial R mal posicionado" em avatares default). O span interno
 // já herda `.Avatar` (mesmo width/height/border-radius do wrap), então
 // nenhum override é necessário.
+.ps-avatar-deco-wrap > img,
+.ps-avatar-deco-wrap > span.Avatar:not(.ps-avatar-deco) {
+  // The wrapper inherits avatar spacing classes; keep spacing on the wrapper
+  // so the inner avatar does not apply it a second time.
+  margin: 0 !important;
+}
+
 .ps-avatar-deco-wrap > img {
   display: block;
   width: 100%;
