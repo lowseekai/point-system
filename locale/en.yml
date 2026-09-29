@@ -212,7 +212,7 @@ ramon-point-system:
       badge_remaining: "{count, plural, one {# left} other {# left}}"
       badge_ends_in_days: "{count, plural, one {Ends in # day} other {Ends in # days}}"
       badge_ends_in_hours: "{count, plural, one {Ends in # hour} other {Ends in # hours}}"
-      discount_ends_in_days: "Remaining {count} days"
+      discount_ends_in_days: "Limited-time discount: {count} days"
       badge_starts_on: "Starts {date}"
       badge_recommended: "Today's pick"
       badge_hot: "Popular"
