@@ -315,52 +315,6 @@
     position: relative;
     transition: transform var(--ps-t), box-shadow var(--ps-t), border-color var(--ps-t);
 
-    &-ribbons {
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 4;
-      width: 150px;
-      height: 78px;
-      overflow: visible;
-      pointer-events: none;
-    }
-
-    &-ribbon {
-      position: absolute;
-      right: -12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      width: 150px;
-      height: 25px;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      line-height: 1;
-      white-space: nowrap;
-      transform: rotate(45deg);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-
-      i { font-size: 10px; }
-
-      &.is-recommended {
-        top: 8px;
-        background: lightskyblue;
-      }
-
-      &.is-hot {
-        top: 37px;
-        background: #e65b3f;
-      }
-    }
-
-    &.has-promotional-ribbon &-equippedRibbon {
-      top: 82px;
-    }
-
-
     &-equippedRibbon {
       position: absolute;
       top: 12px;

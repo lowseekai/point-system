@@ -455,7 +455,6 @@ export default class ShopPage extends Page {
       'PointSystemShop-card',
       `PointSystemShop-card--${item.type.replace(/_decoration$/, '').replace(/_/g, '-')}`,
       item.isAnimated ? 'is-animated' : '',
-      item.isRecommended || item.isHot ? 'has-promotional-ribbon' : '',
       owned ? 'is-owned' : '',
       equipped ? 'is-equipped' : '',
       expired ? 'is-expired' : '',
@@ -468,20 +467,6 @@ export default class ShopPage extends Page {
         {equipped && (
           <div className="PointSystemShop-card-equippedRibbon">
             <i className="fas fa-check-circle" /> {app.translator.trans('ramon-point-system.forum.shop.equipped_label')}
-          </div>
-        )}
-        {(item.isRecommended || item.isHot) && (
-          <div className="PointSystemShop-card-ribbons">
-            {item.isRecommended && (
-              <span className="PointSystemShop-card-ribbon is-recommended">
-                <i className="fas fa-star" /> {app.translator.trans('ramon-point-system.forum.shop.badge_recommended')}
-              </span>
-            )}
-            {item.isHot && (
-              <span className="PointSystemShop-card-ribbon is-hot">
-                <i className="fas fa-fire" /> {app.translator.trans('ramon-point-system.forum.shop.badge_hot')}
-              </span>
-            )}
           </div>
         )}
         {badges.length > 0 && <div className="PointSystemShop-card-badges">{badges}</div>}
@@ -529,12 +514,22 @@ export default class ShopPage extends Page {
             <i className={(app.forum.attribute('pointSystem.currency_icon') as string) || 'fas fa-coins'} />
             {currentPrice < originalPrice && <del>{originalPrice.toLocaleString()}</del>}
             <strong>{currentPrice.toLocaleString()}</strong>
-            {(item.purchaseType && item.purchaseType !== 'onetime' || discountBadge) && (
+            {(item.purchaseType && item.purchaseType !== 'onetime' || discountBadge || item.isRecommended || item.isHot) && (
               <div className="PointSystemShop-card-priceMeta">
                 {item.purchaseType && item.purchaseType !== 'onetime' && (
                   <small>{app.translator.trans(`ramon-point-system.forum.shop.purchase_${item.purchaseType}`)}</small>
                 )}
                 {discountBadge}
+                {item.isRecommended && (
+                  <span className="PointSystemShop-card-badge is-recommended">
+                    <i className="fas fa-star" /> {app.translator.trans('ramon-point-system.forum.shop.badge_recommended')}
+                  </span>
+                )}
+                {item.isHot && (
+                  <span className="PointSystemShop-card-badge is-hot">
+                    <i className="fas fa-fire" /> {app.translator.trans('ramon-point-system.forum.shop.badge_hot')}
+                  </span>
+                )}
               </div>
             )}
           </div>
